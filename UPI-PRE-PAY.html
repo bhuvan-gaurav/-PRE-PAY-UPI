@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>PRE PAY — Smart Finance & Fraud Shield</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --glass-bg: rgba(255, 255, 255, 0.08);
+      --glass-bg-light: rgba(255, 255, 255, 0.12);
+      --glass-border: rgba(255, 255, 255, 0.18);
+      --glass-border-strong: rgba(255, 255, 255, 0.30);
+      --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      --glass-shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.3);
+      --accent: #00d4aa;
+      --accent-glow: rgba(0, 212, 170, 0.3);
+      --accent-secondary: #00b4d8;
+      --warning: #f59e0b;
+      --danger: #ff6b6b;
+      --info: #4facfe;
+      --text: #ffffff;
+      --text-muted: rgba(255, 255, 255, 0.65);
+      --text-dim: rgba(255, 255, 255, 0.45);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body { 
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+      background: #000; 
+      color: var(--text); 
+      line-height: 1.6; 
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===== ANIMATED LIQUID BACKGROUND ===== */
+    .liquid-bg {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: -1;
+      background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3e 25%, #0d1b2a 50%, #1b1b3a 75%, #0a0a1a 100%);
+      background-size: 400% 400%;
+      animation: liquidFlow 20s ease infinite;
+    }
+
+    .liquid-bg::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: 
+        radial-gradient(circle at 20% 30%, rgba(0, 212, 170, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(0, 180, 216, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(79, 172, 254, 0.05) 0%, transparent 60%);
+      animation: liquidFloat 15s ease-in-out infinite;
+    }
+
+    .liquid-bg::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      opacity: 0.03;
+      pointer-events: none;
+    }
+
+    @keyframes liquidFlow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes liquidFloat {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      33% { transform: translate(30px, -30px) rotate(2deg); }
+      66% { transform: translate(-20px, 20px) rotate(-1deg); }
+    }
+
+    /* ===== GLASS MORPHISM BASE ===== */
+    .glass {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--glass-shadow);
+    }
+
+    .glass-strong {
+      background: var(--glass-bg-light);
+      backdrop-filter: blur(30px) saturate(200%);
+      -webkit-backdrop-filter: blur(30px) saturate(200%);
+      border: 1px solid var(--glass-border-strong);
+      box-shadow: var(--glass-shadow-lg);
+    }
+
+    .glass-card {
+      background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 24px;
+      box-shadow: 
+        0 8px 32px rgba(0,0,0,0.2),
+        inset 0 1px 0 rgba(255,255,255,0.2);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .glass-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    }
+
+    .glass-card:hover {
+      transform: translateY(-6px) scale(1.01);
+      box-shadow: 
+        0 20px 60px rgba(0,0,0,0.3),
+        0 0 40px var(--accent-glow),
+        inset 0 1px 0 rgba(255,255,255,0.3);
+      border-color: rgba(255,255,255,0.3);
+    }
+
+    .glass-card:active {
+      transform: translateY(-2px) scale(0.99);
+    }
+
+    /* ===== NAVIGATION ===== */
+    .nav { 
+      position: fixed; top: 0; width: 100%; 
+      z-index: 1000; padding: 0.75rem 1.5rem;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+
+    .nav-inner {
+      width: 100%; max-width: 1200px; margin: 0 auto;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.75rem 1.5rem;
+      border-radius: 20px;
+    }
+
+    .nav-logo { 
+      font-size: 1.6rem; font-weight: 900; 
+      background: linear-gradient(135deg, #fff, var(--accent), var(--accent-secondary));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      display: flex; align-items: center; gap: 0.6rem;
+      letter-spacing: -0.5px;
+    }
+
+    .nav-links { display: flex; gap: 0.5rem; list-style: none; }
+    .nav-links a { 
+      color: var(--text-muted); text-decoration: none; font-weight: 500; 
+      transition: all 0.3s; cursor: pointer; 
+      padding: 0.5rem 1rem; border-radius: 12px;
+      font-size: 0.875rem;
+      border: 1px solid transparent;
+    }
+    .nav-links a:hover { 
+      color: #fff; 
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.15);
+    }
+    .nav-links a.active { 
+      color: var(--accent); 
+      background: rgba(0, 212, 170, 0.1);
+      border-color: rgba(0, 212, 170, 0.2);
+      box-shadow: 0 0 20px rgba(0, 212, 170, 0.1);
+    }
+
+    /* ===== HERO ===== */
+    .hero { 
+      text-align: center; padding: 10rem 2rem 6rem; 
+      position: relative; overflow: hidden;
+    }
+
+    .hero-glow {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(0,212,170,0.15) 0%, transparent 70%);
+      animation: pulseGlow 4s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+      50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
+    }
+
+    .hero h1 { 
+      font-size: 4rem; font-weight: 900; line-height: 1.1; margin-bottom: 1.5rem;
+      letter-spacing: -2px;
+      position: relative; z-index: 1;
+    }
+    .hero h1 span { 
+      background: linear-gradient(135deg, var(--accent), var(--accent-secondary), #4facfe);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-size: 200% 200%;
+      animation: gradientShift 5s ease infinite;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .hero p { 
+      font-size: 1.3rem; color: var(--text-muted); max-width: 600px; margin: 0 auto 2.5rem;
+      font-weight: 400;
+      position: relative; z-index: 1;
+    }
+
+    .hero-badges { 
+      display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 2.5rem;
+      position: relative; z-index: 1;
+    }
+
+    .badge { 
+      padding: 0.6rem 1.2rem; border-radius: 9999px; 
+      font-size: 0.875rem; font-weight: 500;
+      display: flex; align-items: center; gap: 0.5rem;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s;
+    }
+    .badge:hover {
+      background: rgba(255,255,255,0.12);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+    .badge-dot { width: 8px; height: 8px; border-radius: 50%; box-shadow: 0 0 8px currentColor; }
+
+    /* ===== SECTIONS ===== */
+    .section { padding: 5rem 1.5rem 3rem; max-width: 1200px; margin: 0 auto; }
+    .section-title { 
+      font-size: 2.8rem; font-weight: 800; margin-bottom: 0.75rem;
+      background: linear-gradient(135deg, #fff, rgba(255,255,255,0.7));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      letter-spacing: -1px;
+    }
+    .section-subtitle { 
+      color: var(--text-muted); font-size: 1.15rem; margin-bottom: 2.5rem; font-weight: 400;
+    }
+
+    /* ===== QUICK ACCESS DOCK (iOS Style) ===== */
+    .quick-dock {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1rem;
+      margin-bottom: 4rem;
+    }
+
+    .dock-item {
+      padding: 1.5rem 1rem;
+      border-radius: 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .dock-item .dock-icon {
+      font-size: 2.2rem;
+      margin-bottom: 0.75rem;
+      display: block;
+      transition: transform 0.3s;
+    }
+
+    .dock-item .dock-label {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+
+    .dock-item .dock-desc {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-top: 0.25rem;
+    }
+
+    .dock-item:hover {
+      transform: translateY(-8px) scale(1.05);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3), 0 0 30px var(--accent-glow);
+    }
+
+    .dock-item:hover .dock-icon {
+      transform: scale(1.2) rotate(-5deg);
+    }
+
+    .dock-item:active {
+      transform: translateY(-2px) scale(0.97);
+    }
+
+    /* ===== GRID & CARDS ===== */
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+
+    .card { 
+      padding: 1.75rem; 
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: default;
+    }
+
+    .card-icon { 
+      width: 56px; height: 56px; border-radius: 18px; 
+      display: flex; align-items: center; justify-content: center; 
+      font-size: 1.75rem; margin-bottom: 1.25rem;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+      transition: all 0.3s;
+    }
+    .card:hover .card-icon {
+      transform: scale(1.1) rotate(5deg);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+
+    .card h3 { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.6rem; }
+    .card p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.7; }
+
+    .card-tag { 
+      display: inline-block; padding: 0.35rem 0.9rem; border-radius: 9999px; 
+      font-size: 0.75rem; font-weight: 700; margin-top: 1.25rem;
+      border: 1px solid;
+      backdrop-filter: blur(10px);
+    }
+
+    /* ===== CALCULATOR ===== */
+    .calc-container { 
+      border-radius: 28px; padding: 2.5rem;
+    }
+
+    .calc-input-group { margin-bottom: 1.75rem; }
+    .calc-input-group label { 
+      display: block; font-weight: 600; margin-bottom: 0.6rem; 
+      color: var(--text-muted); font-size: 0.9rem;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .calc-input { 
+      width: 100%; padding: 1rem 1.25rem; 
+      background: rgba(0,0,0,0.2); 
+      border: 1px solid rgba(255,255,255,0.12); 
+      border-radius: 16px; color: var(--text); 
+      font-size: 1.1rem; font-family: inherit; 
+      transition: all 0.3s;
+      backdrop-filter: blur(10px);
+    }
+    .calc-input:focus { 
+      outline: none; 
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(0, 212, 170, 0.1), 0 0 20px rgba(0, 212, 170, 0.15);
+      background: rgba(0,0,0,0.3);
+    }
+    .calc-input::placeholder { color: var(--text-dim); }
+
+    .calc-results { 
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-top: 2.5rem; 
+    }
+    .calc-result-card { 
+      text-align: center; padding: 2rem 1.5rem; border-radius: 24px;
+      background: rgba(0,0,0,0.15);
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .calc-result-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      border-radius: 3px 3px 0 0;
+    }
+    .calc-result-card.needs::after { background: linear-gradient(90deg, #4facfe, #00f2fe); }
+    .calc-result-card.wants::after { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .calc-result-card.savings::after { background: linear-gradient(90deg, #00d4aa, #00f5a0); }
+    .calc-result-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+    }
+    .calc-result-value { font-size: 2rem; font-weight: 800; margin-bottom: 0.4rem; letter-spacing: -1px; }
+    .calc-result-value.needs { background: linear-gradient(135deg, #4facfe, #00f2fe); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .calc-result-value.wants { background: linear-gradient(135deg, #f59e0b, #fbbf24); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .calc-result-value.savings { background: linear-gradient(135deg, #00d4aa, #00f5a0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .calc-result-label { font-size: 0.9rem; color: var(--text-muted); font-weight: 600; }
+    .calc-result-pct { font-size: 0.8rem; color: var(--text-dim); margin-top: 0.5rem; }
+
+    /* ===== CHART ===== */
+    .chart-container { display: flex; justify-content: center; margin: 2.5rem 0; }
+    canvas { max-width: 100%; filter: drop-shadow(0 8px 24px rgba(0,0,0,0.2)); }
+
+    /* ===== TRACKER LAYOUT ===== */
+    .tracker-layout { display: grid; grid-template-columns: 1fr 1.5fr; gap: 2rem; }
+    @media (max-width: 900px) { .tracker-layout { grid-template-columns: 1fr; } }
+
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { 
+      display: block; font-size: 0.85rem; font-weight: 600; 
+      color: var(--text-muted); margin-bottom: 0.5rem;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .form-group input, .form-group select { 
+      width: 100%; padding: 0.9rem 1.1rem; 
+      background: rgba(0,0,0,0.2); 
+      border: 1px solid rgba(255,255,255,0.12); 
+      border-radius: 14px; color: var(--text); font-family: inherit;
+      font-size: 0.95rem;
+      transition: all 0.3s;
+      backdrop-filter: blur(10px);
+    }
+    .form-group input:focus, .form-group select:focus { 
+      outline: none; border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(0, 212, 170, 0.1);
+      background: rgba(0,0,0,0.3);
+    }
+
+    .btn { 
+      padding: 0.9rem 1.75rem; border: none; border-radius: 14px; 
+      font-weight: 600; font-family: inherit; cursor: pointer; 
+      transition: all 0.3s; font-size: 0.95rem;
+      position: relative; overflow: hidden;
+    }
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+    .btn:hover::before { left: 100%; }
+
+    .btn-primary { 
+      background: linear-gradient(135deg, var(--accent), var(--accent-secondary)); 
+      color: #000; font-weight: 700;
+      box-shadow: 0 4px 20px rgba(0, 212, 170, 0.3);
+    }
+    .btn-primary:hover { 
+      transform: translateY(-3px); 
+      box-shadow: 0 12px 40px rgba(0, 212, 170, 0.4);
+    }
+    .btn-danger { 
+      background: linear-gradient(135deg, var(--danger), #ff4757); 
+      color: white;
+      box-shadow: 0 4px 20px rgba(255, 107, 107, 0.3);
+    }
+    .btn-warning { 
+      background: linear-gradient(135deg, var(--warning), #fbbf24); 
+      color: #000; font-weight: 700;
+      box-shadow: 0 4px 20px rgba(245, 158, 11, 0.3);
+    }
+    .btn-sm { padding: 0.6rem 1.1rem; font-size: 0.85rem; border-radius: 10px; }
+
+    /* ===== TRANSACTION LIST ===== */
+    .tx-list { max-height: 450px; overflow-y: auto; padding-right: 0.5rem; }
+    .tx-item { 
+      display: flex; justify-content: space-between; align-items: center; 
+      padding: 1.1rem 1.25rem; 
+      border-radius: 16px; margin-bottom: 0.75rem; 
+      border: 1px solid rgba(255,255,255,0.08);
+      transition: all 0.3s;
+      background: rgba(0,0,0,0.15);
+      backdrop-filter: blur(10px);
+    }
+    .tx-item:hover { 
+      border-color: rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.05);
+      transform: translateX(4px);
+    }
+    .tx-info h4 { font-weight: 600; font-size: 1rem; }
+    .tx-info span { font-size: 0.82rem; color: var(--text-dim); }
+    .tx-amount { font-weight: 700; font-size: 1.15rem; }
+    .tx-amount.negative { color: #ff6b6b; }
+    .tx-category { 
+      font-size: 0.7rem; padding: 0.25rem 0.7rem; border-radius: 9999px; 
+      margin-left: 0.5rem; font-weight: 600;
+      border: 1px solid;
+      backdrop-filter: blur(10px);
+    }
+
+    /* ===== BUDGET LIMITS ===== */
+    .limit-item { margin-bottom: 1.5rem; }
+    .limit-header { display: flex; justify-content: space-between; margin-bottom: 0.6rem; }
+    .limit-header span { font-weight: 600; font-size: 0.95rem; }
+    .limit-header small { color: var(--text-dim); font-weight: 500; }
+    .limit-bar-bg { 
+      height: 12px; 
+      background: rgba(0,0,0,0.3); 
+      border-radius: 9999px; overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .limit-bar-fill { 
+      height: 100%; border-radius: 9999px; 
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .limit-bar-fill::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      animation: shimmer 2s infinite;
+    }
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    .limit-bar-fill.safe { background: linear-gradient(90deg, #00d4aa, #00f5a0); }
+    .limit-bar-fill.warning { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .limit-bar-fill.danger { background: linear-gradient(90deg, #ff6b6b, #ff4757); }
+    .limit-alert { 
+      padding: 1rem 1.25rem; border-radius: 16px; font-size: 0.9rem; margin-top: 1.5rem; 
+      display: none; font-weight: 500;
+      backdrop-filter: blur(20px);
+      border: 1px solid;
+      animation: slideUp 0.4s ease;
+    }
+    .limit-alert.show { display: block; }
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* ===== RISK ANALYZER ===== */
+    .risk-container { border-radius: 28px; padding: 2.5rem; }
+    .risk-score-circle { 
+      width: 180px; height: 180px; border-radius: 50%; 
+      margin: 0 auto 2.5rem; 
+      display: flex; flex-direction: column; align-items: center; justify-content: center; 
+      border: 4px solid;
+      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      background: rgba(0,0,0,0.2);
+      box-shadow: 0 0 60px rgba(0,0,0,0.3), inset 0 0 30px rgba(0,0,0,0.2);
+      position: relative;
+    }
+    .risk-score-circle::before {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, transparent, var(--accent), transparent);
+      animation: rotate 8s linear infinite;
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+    .risk-score-circle.active::before { opacity: 0.3; }
+    @keyframes rotate { to { transform: rotate(360deg); } }
+    .risk-score-value { font-size: 3.5rem; font-weight: 900; letter-spacing: -2px; }
+    .risk-score-label { font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
+    .risk-factors { list-style: none; }
+    .risk-factors li { 
+      padding: 1rem 1.25rem; border-radius: 14px; margin-bottom: 0.6rem; 
+      display: flex; justify-content: space-between; align-items: center;
+      background: rgba(0,0,0,0.15);
+      border: 1px solid rgba(255,255,255,0.08);
+      transition: all 0.3s;
+    }
+    .risk-factors li:hover {
+      background: rgba(255,255,255,0.05);
+      transform: translateX(4px);
+    }
+    .risk-factors li span:first-child { color: var(--text-muted); font-weight: 500; }
+    .risk-factors li span:last-child { font-weight: 700; }
+    .risk-factors li.positive { border-left: 4px solid #00d4aa; }
+    .risk-factors li.negative { border-left: 4px solid #ff6b6b; }
+    .risk-factors li.neutral { border-left: 4px solid #f59e0b; }
+
+    /* ===== SECURITY CHECKLIST ===== */
+    .checklist-item { 
+      display: flex; align-items: center; gap: 1.25rem; 
+      padding: 1.1rem 1.25rem; border-radius: 16px; margin-bottom: 0.75rem; 
+      cursor: pointer; transition: all 0.3s;
+      background: rgba(0,0,0,0.15);
+      border: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(10px);
+    }
+    .checklist-item:hover { 
+      border-color: rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.05);
+      transform: translateX(6px);
+    }
+    .checklist-item.checked { 
+      opacity: 0.5;
+      background: rgba(0, 212, 170, 0.05);
+      border-color: rgba(0, 212, 170, 0.2);
+    }
+    .checklist-item.checked .check-circle { 
+      background: linear-gradient(135deg, var(--accent), var(--accent-secondary)); 
+      border-color: transparent;
+      box-shadow: 0 0 12px rgba(0, 212, 170, 0.4);
+    }
+    .check-circle { 
+      width: 28px; height: 28px; border-radius: 50%; 
+      border: 2px solid rgba(255,255,255,0.2); 
+      display: flex; align-items: center; justify-content: center; 
+      flex-shrink: 0; transition: all 0.3s;
+    }
+    .check-circle::after { content: '✓'; color: #000; font-size: 0.85rem; font-weight: 800; opacity: 0; transition: opacity 0.3s; }
+    .checklist-item.checked .check-circle::after { opacity: 1; }
+    .checklist-text { font-weight: 500; font-size: 0.95rem; }
+    .checklist-item.checked .checklist-text { text-decoration: line-through; color: var(--text-dim); }
+
+    /* ===== STATS ROW ===== */
+    .stats-row { 
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 2.5rem; 
+    }
+    @media (max-width: 768px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+    .stat-card { 
+      padding: 1.75rem 1rem; text-align: center;
+      transition: all 0.3s;
+    }
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.25);
+    }
+    .stat-value { 
+      font-size: 2.2rem; font-weight: 800; 
+      background: linear-gradient(135deg, #fff, rgba(255,255,255,0.7));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      letter-spacing: -1px;
+    }
+    .stat-label { font-size: 0.85rem; color: var(--text-dim); margin-top: 0.4rem; font-weight: 500; }
+
+    /* ===== SECTION GLASS WRAPPER ===== */
+    .section-glass {
+      border-radius: 32px;
+      padding: 3rem;
+      margin: 3rem auto;
+      max-width: 1200px;
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      text-align: center; padding: 4rem 2rem 3rem;
+      margin-top: 6rem;
+      position: relative;
+    }
+    footer::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%; transform: translateX(-50%);
+      width: 200px; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    }
+    footer p { color: var(--text-dim); }
+    footer .footer-brand {
+      font-weight: 800; font-size: 1.3rem;
+      background: linear-gradient(135deg, #fff, var(--accent));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fadeIn { 
+      from { opacity: 0; transform: translateY(30px); } 
+      to { opacity: 1; transform: translateY(0); } 
+    }
+    .animate-in { 
+      animation: fadeIn 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards; 
+      opacity: 0;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .float { animation: float 6s ease-in-out infinite; }
+
+    /* ===== TOAST ===== */
+    .toast-container { position: fixed; bottom: 2rem; right: 2rem; z-index: 9999; }
+    .toast { 
+      padding: 1rem 1.5rem; border-radius: 16px; margin-top: 0.75rem; 
+      display: flex; align-items: center; gap: 0.75rem; 
+      animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid;
+      font-weight: 500;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+    }
+    @keyframes slideIn { 
+      from { transform: translateX(100%) scale(0.9); opacity: 0; } 
+      to { transform: translateX(0) scale(1); opacity: 1; } 
+    }
+    .toast-success { border-color: rgba(0, 212, 170, 0.3); background: rgba(0, 212, 170, 0.1); }
+    .toast-danger { border-color: rgba(255, 107, 107, 0.3); background: rgba(255, 107, 107, 0.1); }
+    .toast-warning { border-color: rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.1); }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .hero h1 { font-size: 2.8rem; }
+      .hero p { font-size: 1.1rem; }
+      .calc-results { grid-template-columns: 1fr; }
+      .section { padding: 3rem 1rem 2rem; }
+      .section-title { font-size: 2.2rem; }
+      .section-glass { padding: 2rem 1.5rem; border-radius: 24px; }
+      .quick-dock { grid-template-columns: repeat(2, 1fr); }
+      .grid-2 { grid-template-columns: 1fr !important; }
+    }
+
+    /* ===== FLOATING PARTICLES ===== */
+    .particle {
+      position: fixed;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,212,170,0.3) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+      animation: particleFloat 20s infinite;
+    }
+    @keyframes particleFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+      25% { transform: translate(50px, -30px) scale(1.2); opacity: 0.5; }
+      50% { transform: translate(-30px, -60px) scale(0.8); opacity: 0.2; }
+      75% { transform: translate(-50px, -20px) scale(1.1); opacity: 0.4; }
+    }
+
+    /* ===== SECTION DIVIDER ===== */
+    .section-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      margin: 2rem auto;
+      max-width: 600px;
+    }
+
+    /* ===== INPUT STYLES FOR LIMITS ===== */
+    .limit-input {
+      background: rgba(0,0,0,0.2) !important;
+      border: 1px solid rgba(255,255,255,0.12) !important;
+      border-radius: 12px !important;
+      padding: 0.6rem 1rem !important;
+      color: var(--text) !important;
+      font-family: inherit !important;
+      font-size: 0.9rem !important;
+      transition: all 0.3s !important;
+    }
+    .limit-input:focus {
+      outline: none !important;
+      border-color: var(--accent) !important;
+      box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.1) !important;
+    }
+
+    /* ===== RISK ACTION BOX ===== */
+    #riskAction {
+      border-radius: 16px;
+      padding: 1.25rem;
+      font-weight: 500;
+      line-height: 1.6;
+      backdrop-filter: blur(20px);
+    }
+
+    /* ===== SPENDING GUIDE BOX ===== */
+    .guide-box {
+      margin-top: 2rem; padding: 1.75rem;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(0,0,0,0.2);
+    }
+    .guide-box h4 {
+      margin-bottom: 1rem;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+    .guide-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    .guide-grid div {
+      padding: 0.75rem;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      transition: all 0.3s;
+    }
+    .guide-grid div:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.12);
+      transform: translateX(4px);
+    }
+
+    /* ===== GRID 2 for Risk ===== */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem;
+    }
+
+    /* ===== EMPTY STATE ===== */
+    #emptyState {
+      text-align: center; padding: 4rem 2rem;
+      color: var(--text-dim);
+      border-radius: 20px;
+      border: 2px dashed rgba(255,255,255,0.1);
+    }
+    #emptyState div { font-size: 3.5rem; margin-bottom: 1.25rem; filter: grayscale(0.5); }
+
+    /* ===== PREVENTION BOX IN CARDS ===== */
+    .prevention-box {
+      margin-top: 1.25rem;
+      padding: 1rem 1.1rem;
+      border-radius: 14px;
+      font-size: 0.88rem;
+      background: rgba(0,0,0,0.2);
+      border: 1px solid rgba(0, 212, 170, 0.15);
+      backdrop-filter: blur(10px);
+    }
+    .prevention-box strong {
+      color: var(--accent);
+    }
+  </style>
+<base target="_blank">
+</head>
+<body>
+
+  <!-- Liquid Background -->
+  <div class="liquid-bg"></div>
+
+  <!-- Floating Particles -->
+  <div class="particle" style="width: 200px; height: 200px; top: 10%; left: 5%; animation-delay: 0s;"></div>
+  <div class="particle" style="width: 150px; height: 150px; top: 60%; right: 10%; animation-delay: -5s;"></div>
+  <div class="particle" style="width: 100px; height: 100px; top: 30%; right: 30%; animation-delay: -10s;"></div>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-inner glass-strong">
+      <div class="nav-logo">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="url(#grad1)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <defs>
+            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#00d4aa"/>
+              <stop offset="100%" style="stop-color:#00b4d8"/>
+            </linearGradient>
+          </defs>
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        PRE PAY
+      </div>
+      <ul class="nav-links">
+        <li><a onclick="scrollToSection('fraud')" class="active">Fraud Shield</a></li>
+        <li><a onclick="scrollToSection('budget')">50-30-20 Rule</a></li>
+        <li><a onclick="scrollToSection('tracker')">Spending Tracker</a></li>
+        <li><a onclick="scrollToSection('limits')">Budget Limits</a></li>
+        <li><a onclick="scrollToSection('risk')">Risk Analyzer</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-glow"></div>
+    <h1 class="float">Secure Every Payment.<br><span>Master Every Rupee.</span></h1>
+    <p>Stay ahead of fraud with real-time risk analysis, track expenses with the 50-30-20 rule, and set intelligent budget caps — all in one beautiful dashboard.</p>
+
+    <!-- Quick Access Dock -->
+    <div class="quick-dock" style="max-width: 900px; margin: 3rem auto 0;">
+      <div class="dock-item glass-card" onclick="scrollToSection('fraud')">
+        <span class="dock-icon">🛡️</span>
+        <span class="dock-label">Fraud Shield</span>
+        <span class="dock-desc">Stay protected</span>
+      </div>
+      <div class="dock-item glass-card" onclick="scrollToSection('budget')">
+        <span class="dock-icon">📊</span>
+        <span class="dock-label">50-30-20 Rule</span>
+        <span class="dock-desc">Smart budgeting</span>
+      </div>
+      <div class="dock-item glass-card" onclick="scrollToSection('tracker')">
+        <span class="dock-icon">💳</span>
+        <span class="dock-label">Spending Tracker</span>
+        <span class="dock-desc">Log every rupee</span>
+      </div>
+      <div class="dock-item glass-card" onclick="scrollToSection('limits')">
+        <span class="dock-icon">🎯</span>
+        <span class="dock-label">Budget Limits</span>
+        <span class="dock-desc">Set smart caps</span>
+      </div>
+      <div class="dock-item glass-card" onclick="scrollToSection('risk')">
+        <span class="dock-icon">🔍</span>
+        <span class="dock-label">Risk Analyzer</span>
+        <span class="dock-desc">Pre-pay check</span>
+      </div>
+    </div>
+
+    <div class="hero-badges">
+      <div class="badge"><span class="badge-dot" style="background: var(--accent); color: var(--accent);"></span>Fraud Prevention</div>
+      <div class="badge"><span class="badge-dot" style="background: var(--warning); color: var(--warning);"></span>Budget Planning</div>
+      <div class="badge"><span class="badge-dot" style="background: var(--info); color: var(--info);"></span>Expense Tracking</div>
+      <div class="badge"><span class="badge-dot" style="background: var(--danger); color: var(--danger);"></span>Risk Analysis</div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- Fraud Awareness -->
+  <section class="section" id="fraud">
+    <h2 class="section-title">🛡️ Fraud Shield</h2>
+    <p class="section-subtitle">Know the enemy before it strikes. Here are the most common UPI fraud tactics in India today.</p>
+
+    <div class="grid" id="fraud-grid"></div>
+
+    <div style="margin-top: 4rem;">
+      <h3 style="font-size: 1.6rem; font-weight: 700; margin-bottom: 0.75rem;">🔒 Security Checklist</h3>
+      <p style="color: var(--text-muted); margin-bottom: 1.75rem; font-size: 1.05rem;">Tap each item to mark it complete. Stay safe, stay vigilant.</p>
+      <div id="checklist"></div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- 50-30-20 Calculator -->
+  <section class="section section-glass glass-strong" id="budget">
+    <h2 class="section-title">📊 50-30-20 Budget Rule</h2>
+    <p class="section-subtitle">The golden rule of personal finance. Allocate your UPI income smartly across Needs, Wants, and Savings.</p>
+
+    <div class="calc-container glass-card" style="padding: 2.5rem;">
+      <div class="calc-input-group">
+        <label>💰 Monthly Income (₹)</label>
+        <input type="number" class="calc-input" id="incomeInput" placeholder="e.g. 50000" value="50000" oninput="calculateBudget()">
+      </div>
+
+      <div class="chart-container">
+        <canvas id="budgetChart" width="320" height="320"></canvas>
+      </div>
+
+      <div class="calc-results">
+        <div class="calc-result-card needs">
+          <div class="calc-result-value needs" id="needsValue">₹25,000</div>
+          <div class="calc-result-label">Needs (50%)</div>
+          <div class="calc-result-pct">Rent, groceries, utilities, transport, healthcare</div>
+        </div>
+        <div class="calc-result-card wants">
+          <div class="calc-result-value wants" id="wantsValue">₹15,000</div>
+          <div class="calc-result-label">Wants (30%)</div>
+          <div class="calc-result-pct">Dining, entertainment, shopping, hobbies</div>
+        </div>
+        <div class="calc-result-card savings">
+          <div class="calc-result-value savings" id="savingsValue">₹10,000</div>
+          <div class="calc-result-label">Savings (20%)</div>
+          <div class="calc-result-pct">Emergency fund, investments, debt repayment</div>
+        </div>
+      </div>
+
+      <div class="guide-box">
+        <h4>📋 UPI Spending Allocation Guide</h4>
+        <div class="guide-grid">
+          <div>🍔 <strong>Food:</strong> Needs (groceries) / Wants (dining out)</div>
+          <div>🚗 <strong>Transport:</strong> Needs (commute) / Wants (cab for leisure)</div>
+          <div>🛒 <strong>Shopping:</strong> Wants (discretionary)</div>
+          <div>💡 <strong>Utilities:</strong> Needs (essential bills)</div>
+          <div>🎬 <strong>Entertainment:</strong> Wants (subscriptions, events)</div>
+          <div>💊 <strong>Health:</strong> Needs (medicines, insurance)</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- Spending Tracker -->
+  <section class="section" id="tracker">
+    <h2 class="section-title">💳 Spending Tracker</h2>
+    <p class="section-subtitle">Log every transaction, categorize it by the 50-30-20 rule, and watch your financial health improve.</p>
+
+    <div class="stats-row">
+      <div class="stat-card glass-card">
+        <div class="stat-value" id="totalSpent">₹0</div>
+        <div class="stat-label">Total Spent</div>
+      </div>
+      <div class="stat-card glass-card">
+        <div class="stat-value" id="needsSpent" style="font-size: 1.6rem;">₹0</div>
+        <div class="stat-label">Needs (50%)</div>
+      </div>
+      <div class="stat-card glass-card">
+        <div class="stat-value" id="wantsSpent" style="font-size: 1.6rem;">₹0</div>
+        <div class="stat-label">Wants (30%)</div>
+      </div>
+      <div class="stat-card glass-card">
+        <div class="stat-value" id="savingsSpent" style="font-size: 1.6rem;">₹0</div>
+        <div class="stat-label">Savings (20%)</div>
+      </div>
+    </div>
+
+    <div class="tracker-layout">
+      <div>
+        <div class="glass-card" style="padding: 1.75rem; margin-bottom: 1.5rem;">
+          <h3 style="margin-bottom: 1.25rem; font-size: 1.2rem; font-weight: 700;">➕ Add Transaction</h3>
+          <div class="form-group">
+            <label>Amount (₹)</label>
+            <input type="number" id="txAmount" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label>Category</label>
+            <select id="txCategory">
+              <option value="food">🍔 Food & Dining</option>
+              <option value="transport">🚗 Transport</option>
+              <option value="shopping">🛒 Shopping</option>
+              <option value="utilities">💡 Utilities & Bills</option>
+              <option value="entertainment">🎬 Entertainment</option>
+              <option value="health">💊 Health & Medical</option>
+              <option value="education">📚 Education</option>
+              <option value="savings">💰 Savings / Investment</option>
+              <option value="others">📦 Others</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Bucket (50-30-20)</label>
+            <select id="txBucket">
+              <option value="needs">Needs (50%)</option>
+              <option value="wants">Wants (30%)</option>
+              <option value="savings">Savings (20%)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Merchant / UPI ID</label>
+            <input type="text" id="txMerchant" placeholder="e.g. Zomato, Amazon, @upi">
+          </div>
+          <button class="btn btn-primary" style="width: 100%;" onclick="addTransaction()">Add Transaction</button>
+        </div>
+
+        <div class="chart-container">
+          <canvas id="spendingChart" width="300" height="300"></canvas>
+        </div>
+      </div>
+
+      <div>
+        <div class="glass-card" style="padding: 1.75rem;">
+          <h3 style="margin-bottom: 1.25rem; font-size: 1.2rem; font-weight: 700;">📋 Recent Transactions</h3>
+          <div class="tx-list" id="txList"></div>
+          <div id="emptyState">
+            <div>📝</div>
+            <p>No transactions yet. Add your first UPI payment above!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- Budget Limits -->
+  <section class="section" id="limits">
+    <h2 class="section-title">🎯 Smart Budget Limits</h2>
+    <p class="section-subtitle">Set monthly spending caps per category. Get visual warnings when you are approaching your limit.</p>
+
+    <div class="grid" id="limitsGrid"></div>
+
+    <div class="limit-alert" id="limitAlert" style="border-color: rgba(255, 107, 107, 0.3); background: rgba(255, 107, 107, 0.1); color: #ff6b6b;">
+      ⚠️ <strong>Alert:</strong> You have exceeded or are about to exceed your budget limit in one or more categories!
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- Risk Analyzer -->
+  <section class="section" id="risk">
+    <h2 class="section-title">🔍 Pre-Transaction Risk Analyzer</h2>
+    <p class="section-subtitle">Before you tap 'Pay', run a quick risk check. Inspired by real UPI fraud patterns.</p>
+
+    <div class="risk-container glass-card">
+      <div class="grid-2">
+        <div>
+          <div class="form-group">
+            <label>Amount (₹)</label>
+            <input type="number" id="riskAmount" placeholder="e.g. 25000">
+          </div>
+          <div class="form-group">
+            <label>Recipient Type</label>
+            <select id="riskRecipient">
+              <option value="known">Known Contact (Paid Before)</option>
+              <option value="new">New UPI ID / Unknown</option>
+              <option value="suspicious">Suspicious / Random ID</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Time of Transaction</label>
+            <select id="riskTime">
+              <option value="normal">Normal Hours (6 AM - 11 PM)</option>
+              <option value="late">Late Night (11 PM - 5 AM)</option>
+              <option value="verylate">Very Unusual (2 AM - 5 AM)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Device</label>
+            <select id="riskDevice">
+              <option value="known">Your Regular Device</option>
+              <option value="new">New Device / Browser</option>
+              <option value="public">Public / Shared Device</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Transaction Context</label>
+            <select id="riskContext">
+              <option value="normal">Regular Purchase / Transfer</option>
+              <option value="urgent">Urgent / Pressure to Pay</option>
+              <option value="reward">Prize / Cashback / Reward Claim</option>
+              <option value="kyc">KYC / Account Update Request</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" onclick="analyzeRisk()">Analyze Risk</button>
+        </div>
+
+        <div style="text-align: center;">
+          <div class="risk-score-circle" id="riskCircle" style="border-color: rgba(255,255,255,0.15);">
+            <div class="risk-score-value" id="riskScore" style="color: var(--text-dim);">--</div>
+            <div class="risk-score-label" id="riskLabel" style="color: var(--text-dim);">Enter Details</div>
+          </div>
+
+          <ul class="risk-factors" id="riskFactors"></ul>
+
+          <div id="riskAction" style="display: none;"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p class="footer-brand">PRE PAY — Smart Finance & Fraud Shield</p>
+    <p style="font-size: 0.95rem; margin-bottom: 0.5rem;">Built for safer digital payments. Always verify before you pay. Never share your UPI PIN.</p>
+    <p style="font-size: 0.8rem; opacity: 0.5; margin-top: 1rem;">⚠️ This is an educational tool. For actual fraud incidents, contact your bank immediately and report to NPCI.</p>
+  </footer>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    // ==================== FRAUD DATA ====================
+    const fraudTypes = [
+      {
+        icon: '🎣',
+        title: 'Phishing Links',
+        desc: 'Fraudsters send fake payment links that look identical to real UPI apps. Once you enter your PIN, money is gone instantly.',
+        tag: 'HIGH RISK',
+        color: '#ff6b6b',
+        prevention: 'Never click payment links from SMS/Email. Always open your UPI app directly.'
+      },
+      {
+        icon: '📱',
+        title: 'Fake Customer Care',
+        desc: 'Scammers pose as bank/UPI customer care and ask for OTP, PIN, or to "receive" a refund by entering your PIN.',
+        tag: 'VERY COMMON',
+        color: '#ff6b6b',
+        prevention: 'No bank ever asks for PIN or OTP. Disconnect immediately.'
+      },
+      {
+        icon: '🔲',
+        title: 'QR Code Scam',
+        desc: 'You scan a QR to "receive" money, but it is actually a collect request. You enter PIN and lose money instead.',
+        tag: 'TRICKY',
+        color: '#f59e0b',
+        prevention: 'You NEVER need to enter PIN to RECEIVE money. PIN is only for sending.'
+      },
+      {
+        icon: '💬',
+        title: 'UPI Collect Request Fraud',
+        desc: 'You get a collect request with an urgent message ("electricity bill due", "delivery fee"). Approving it sends money to scammer.',
+        tag: 'COMMON',
+        color: '#f59e0b',
+        prevention: 'Verify the requester UPI ID. Reject unknown collect requests.'
+      },
+      {
+        icon: '📲',
+        title: 'SIM Swap Attack',
+        desc: 'Fraudster duplicates your SIM to receive OTPs and drain accounts via UPI.',
+        tag: 'ADVANCED',
+        color: '#ff6b6b',
+        prevention: 'If your phone loses network suddenly, contact your telecom provider immediately.'
+      },
+      {
+        icon: '🦠',
+        title: 'Malicious Apps',
+        desc: 'Fake UPI apps or screen-sharing apps (like AnyDesk) that record your screen while you enter PIN.',
+        tag: 'DANGEROUS',
+        color: '#ff6b6b',
+        prevention: 'Download apps only from Play Store/App Store. Never install remote access apps.'
+      }
+    ];
+
+    const checklistItems = [
+      'I never share my UPI PIN with anyone',
+      'I verify the recipient name before every payment',
+      'I do not click on payment links from unknown sources',
+      'I check if it is a collect request (money going OUT) before approving',
+      'I have enabled app lock on my UPI application',
+      'I report suspicious UPI IDs to my bank',
+      'I check my transaction history weekly',
+      'I never enter PIN to "receive" money or cashback'
+    ];
+
+    // ==================== STATE ====================
+    let transactions = JSON.parse(localStorage.getItem('prepay_tx')) || [];
+    let limits = JSON.parse(localStorage.getItem('prepay_limits')) || {
+      food: 8000,
+      transport: 5000,
+      shopping: 10000,
+      utilities: 6000,
+      entertainment: 4000,
+      health: 3000,
+      education: 5000,
+      others: 3000
+    };
+
+    const categoryLabels = {
+      food: '🍔 Food & Dining',
+      transport: '🚗 Transport',
+      shopping: '🛒 Shopping',
+      utilities: '💡 Utilities',
+      entertainment: '🎬 Entertainment',
+      health: '💊 Health',
+      education: '📚 Education',
+      savings: '💰 Savings',
+      others: '📦 Others'
+    };
+
+    // ==================== INIT ====================
+    function init() {
+      renderFraudCards();
+      renderChecklist();
+      calculateBudget();
+      renderTransactions();
+      renderLimits();
+      updateStats();
+      drawSpendingChart();
+    }
+
+    // ==================== FRAUD SECTION ====================
+    function renderFraudCards() {
+      const grid = document.getElementById('fraud-grid');
+      grid.innerHTML = fraudTypes.map((f, i) => `
+        <div class="card glass-card animate-in" style="animation-delay: ${i * 0.1}s">
+          <div class="card-icon" style="background: ${f.color}15; color: ${f.color};">${f.icon}</div>
+          <h3>${f.title}</h3>
+          <p>${f.desc}</p>
+          <div class="prevention-box">
+            <strong>✓ Prevention:</strong> ${f.prevention}
+          </div>
+          <span class="card-tag" style="background: ${f.color}15; color: ${f.color}; border-color: ${f.color}30;">${f.tag}</span>
+        </div>
+      `).join('');
+    }
+
+    function renderChecklist() {
+      const container = document.getElementById('checklist');
+      const saved = JSON.parse(localStorage.getItem('prepay_checklist')) || [];
+      container.innerHTML = checklistItems.map((item, i) => `
+        <div class="checklist-item ${saved.includes(i) ? 'checked' : ''}" onclick="toggleChecklist(${i})">
+          <div class="check-circle"></div>
+          <span class="checklist-text">${item}</span>
+        </div>
+      `).join('');
+    }
+
+    function toggleChecklist(index) {
+      const saved = JSON.parse(localStorage.getItem('prepay_checklist')) || [];
+      const pos = saved.indexOf(index);
+      if (pos > -1) saved.splice(pos, 1);
+      else saved.push(index);
+      localStorage.setItem('prepay_checklist', JSON.stringify(saved));
+      renderChecklist();
+      showToast(`Security tip ${pos > -1 ? 'unchecked' : 'checked'}!`, 'success');
+    }
+
+    // ==================== 50-30-20 CALCULATOR ====================
+    function calculateBudget() {
+      const income = parseFloat(document.getElementById('incomeInput').value) || 0;
+      const needs = income * 0.5;
+      const wants = income * 0.3;
+      const savings = income * 0.2;
+
+      document.getElementById('needsValue').textContent = formatCurrency(needs);
+      document.getElementById('wantsValue').textContent = formatCurrency(wants);
+      document.getElementById('savingsValue').textContent = formatCurrency(savings);
+
+      drawBudgetChart(needs, wants, savings);
+    }
+
+    function drawBudgetChart(needs, wants, savings) {
+      const canvas = document.getElementById('budgetChart');
+      const ctx = canvas.getContext('2d');
+      const total = needs + wants + savings;
+      if (total === 0) return;
+
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const radius = 110;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const data = [
+        { value: needs, color: '#4facfe', label: 'Needs' },
+        { value: wants, color: '#f59e0b', label: 'Wants' },
+        { value: savings, color: '#00d4aa', label: 'Savings' }
+      ];
+
+      let currentAngle = -Math.PI / 2;
+
+      data.forEach(segment => {
+        const sliceAngle = (segment.value / total) * 2 * Math.PI;
+
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + sliceAngle);
+        ctx.closePath();
+        ctx.fillStyle = segment.color;
+        ctx.fill();
+
+        const labelAngle = currentAngle + sliceAngle / 2;
+        const labelX = centerX + Math.cos(labelAngle) * (radius * 0.65);
+        const labelY = centerY + Math.sin(labelAngle) * (radius * 0.65);
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 14px Inter';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(segment.label, labelX, labelY);
+
+        currentAngle += sliceAngle;
+      });
+
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius * 0.4, 0, 2 * Math.PI);
+      ctx.fillStyle = 'rgba(0,0,0,0.3)';
+      ctx.fill();
+
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 16px Inter';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('Budget', centerX, centerY);
+    }
+
+    // ==================== SPENDING TRACKER ====================
+    function addTransaction() {
+      const amount = parseFloat(document.getElementById('txAmount').value);
+      const category = document.getElementById('txCategory').value;
+      const bucket = document.getElementById('txBucket').value;
+      const merchant = document.getElementById('txMerchant').value || 'Unknown';
+
+      if (!amount || amount <= 0) {
+        showToast('Please enter a valid amount', 'danger');
+        return;
+      }
+
+      const tx = {
+        id: Date.now(),
+        amount,
+        category,
+        bucket,
+        merchant,
+        date: new Date().toISOString()
+      };
+
+      transactions.unshift(tx);
+      localStorage.setItem('prepay_tx', JSON.stringify(transactions));
+
+      document.getElementById('txAmount').value = '';
+      document.getElementById('txMerchant').value = '';
+
+      renderTransactions();
+      updateStats();
+      drawSpendingChart();
+      renderLimits();
+      showToast(`Added ₹${amount} to ${categoryLabels[category]}`, 'success');
+    }
+
+    function deleteTransaction(id) {
+      transactions = transactions.filter(t => t.id !== id);
+      localStorage.setItem('prepay_tx', JSON.stringify(transactions));
+      renderTransactions();
+      updateStats();
+      drawSpendingChart();
+      renderLimits();
+      showToast('Transaction deleted', 'warning');
+    }
+
+    function renderTransactions() {
+      const list = document.getElementById('txList');
+      const empty = document.getElementById('emptyState');
+
+      if (transactions.length === 0) {
+        list.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+
+      empty.style.display = 'none';
+      list.innerHTML = transactions.slice(0, 20).map(tx => {
+        const date = new Date(tx.date).toLocaleDateString('en-IN');
+        const bucketColors = { needs: '#4facfe', wants: '#fbbf24', savings: '#00d4aa' };
+        return `
+          <div class="tx-item">
+            <div class="tx-info">
+              <h4>${tx.merchant} <span class="tx-category" style="border-color: ${bucketColors[tx.bucket]}40; color: ${bucketColors[tx.bucket]};">${tx.bucket}</span></h4>
+              <span>${categoryLabels[tx.category]} • ${date}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <span class="tx-amount negative">-₹${tx.amount.toLocaleString('en-IN')}</span>
+              <button class="btn btn-danger btn-sm" onclick="deleteTransaction(${tx.id})">✕</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateStats() {
+      const total = transactions.reduce((sum, t) => sum + t.amount, 0);
+      const needs = transactions.filter(t => t.bucket === 'needs').reduce((sum, t) => sum + t.amount, 0);
+      const wants = transactions.filter(t => t.bucket === 'wants').reduce((sum, t) => sum + t.amount, 0);
+      const savings = transactions.filter(t => t.bucket === 'savings').reduce((sum, t) => sum + t.amount, 0);
+
+      document.getElementById('totalSpent').textContent = formatCurrency(total);
+      document.getElementById('needsSpent').textContent = formatCurrency(needs);
+      document.getElementById('wantsSpent').textContent = formatCurrency(wants);
+      document.getElementById('savingsSpent').textContent = formatCurrency(savings);
+    }
+
+    function drawSpendingChart() {
+      const canvas = document.getElementById('spendingChart');
+      const ctx = canvas.getContext('2d');
+
+      const categoryTotals = {};
+      transactions.forEach(t => {
+        categoryTotals[t.category] = (categoryTotals[t.category] || 0) + t.amount;
+      });
+
+      const data = Object.entries(categoryTotals);
+      if (data.length === 0) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'rgba(255,255,255,0.3)';
+        ctx.font = '14px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillText('No data yet', canvas.width/2, canvas.height/2);
+        return;
+      }
+
+      const total = data.reduce((sum, [, val]) => sum + val, 0);
+      const colors = ['#4facfe', '#f59e0b', '#00d4aa', '#ff6b6b', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316', '#84cc16'];
+
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const radius = 100;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      let currentAngle = -Math.PI / 2;
+      data.forEach(([cat, val], i) => {
+        const sliceAngle = (val / total) * 2 * Math.PI;
+
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + sliceAngle);
+        ctx.closePath();
+        ctx.fillStyle = colors[i % colors.length];
+        ctx.fill();
+
+        currentAngle += sliceAngle;
+      });
+
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius * 0.45, 0, 2 * Math.PI);
+      ctx.fillStyle = 'rgba(0,0,0,0.3)';
+      ctx.fill();
+
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 14px Inter';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('Spending', centerX, centerY - 8);
+      ctx.font = '12px Inter';
+      ctx.fillStyle = 'rgba(255,255,255,0.5)';
+      ctx.fillText(`${data.length} categories`, centerX, centerY + 10);
+
+      let legendY = 10;
+      data.forEach(([cat, val], i) => {
+        const pct = ((val / total) * 100).toFixed(0);
+        ctx.fillStyle = colors[i % colors.length];
+        ctx.fillRect(10, legendY, 12, 12);
+        ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        ctx.font = '11px Inter';
+        ctx.textAlign = 'left';
+        ctx.fillText(`${categoryLabels[cat].split(' ')[1]} ${pct}%`, 28, legendY + 10);
+        legendY += 20;
+      });
+    }
+
+    // ==================== BUDGET LIMITS ====================
+    function renderLimits() {
+      const grid = document.getElementById('limitsGrid');
+      const categoryTotals = {};
+      transactions.forEach(t => {
+        categoryTotals[t.category] = (categoryTotals[t.category] || 0) + t.amount;
+      });
+
+      let hasAlert = false;
+
+      grid.innerHTML = Object.entries(limits).map(([cat, limit]) => {
+        const spent = categoryTotals[cat] || 0;
+        const pct = Math.min((spent / limit) * 100, 100);
+        const status = pct >= 90 ? 'danger' : pct >= 70 ? 'warning' : 'safe';
+        if (pct >= 90) hasAlert = true;
+
+        return `
+          <div class="card glass-card">
+            <div class="limit-item" style="margin-bottom: 0;">
+              <div class="limit-header">
+                <span>${categoryLabels[cat]}</span>
+                <small>₹${spent.toLocaleString('en-IN')} / ₹${limit.toLocaleString('en-IN')}</small>
+              </div>
+              <div class="limit-bar-bg">
+                <div class="limit-bar-fill ${status}" style="width: ${pct}%"></div>
+              </div>
+              <div style="display: flex; justify-content: space-between; margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-dim);">
+                <span>${pct.toFixed(0)}% used</span>
+                <span>Limit: ₹${limit.toLocaleString('en-IN')}</span>
+              </div>
+              <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem;">
+                <input type="number" class="limit-input" style="flex: 1;" id="limit-${cat}" value="${limit}" placeholder="Set limit">
+                <button class="btn btn-primary btn-sm" onclick="updateLimit('${cat}')">Update</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('limitAlert').classList.toggle('show', hasAlert);
+    }
+
+    function updateLimit(category) {
+      const val = parseFloat(document.getElementById(`limit-${category}`).value);
+      if (!val || val <= 0) {
+        showToast('Enter a valid limit', 'danger');
+        return;
+      }
+      limits[category] = val;
+      localStorage.setItem('prepay_limits', JSON.stringify(limits));
+      renderLimits();
+      showToast(`Limit updated for ${categoryLabels[category]}`, 'success');
+    }
+
+    // ==================== RISK ANALYZER ====================
+    function analyzeRisk() {
+      const amount = parseFloat(document.getElementById('riskAmount').value) || 0;
+      const recipient = document.getElementById('riskRecipient').value;
+      const time = document.getElementById('riskTime').value;
+      const device = document.getElementById('riskDevice').value;
+      const context = document.getElementById('riskContext').value;
+
+      if (amount <= 0) {
+        showToast('Please enter an amount', 'danger');
+        return;
+      }
+
+      let score = 0;
+      const factors = [];
+
+      if (amount > 50000) { score += 25; factors.push({ text: 'Very high amount', val: '+25', type: 'negative' }); }
+      else if (amount > 20000) { score += 15; factors.push({ text: 'High amount', val: '+15', type: 'negative' }); }
+      else if (amount > 10000) { score += 8; factors.push({ text: 'Moderate amount', val: '+8', type: 'neutral' }); }
+      else { factors.push({ text: 'Normal amount', val: '+0', type: 'positive' }); }
+
+      if (recipient === 'suspicious') { score += 25; factors.push({ text: 'Suspicious recipient', val: '+25', type: 'negative' }); }
+      else if (recipient === 'new') { score += 15; factors.push({ text: 'New recipient', val: '+15', type: 'neutral' }); }
+      else { factors.push({ text: 'Known recipient', val: '+0', type: 'positive' }); }
+
+      if (time === 'verylate') { score += 15; factors.push({ text: 'Very unusual time', val: '+15', type: 'negative' }); }
+      else if (time === 'late') { score += 8; factors.push({ text: 'Late night transaction', val: '+8', type: 'neutral' }); }
+      else { factors.push({ text: 'Normal time', val: '+0', type: 'positive' }); }
+
+      if (device === 'public') { score += 15; factors.push({ text: 'Public/shared device', val: '+15', type: 'negative' }); }
+      else if (device === 'new') { score += 8; factors.push({ text: 'New device', val: '+8', type: 'neutral' }); }
+      else { factors.push({ text: 'Known device', val: '+0', type: 'positive' }); }
+
+      if (context === 'reward') { score += 20; factors.push({ text: 'Prize/reward scam pattern', val: '+20', type: 'negative' }); }
+      else if (context === 'kyc') { score += 20; factors.push({ text: 'Fake KYC request pattern', val: '+20', type: 'negative' }); }
+      else if (context === 'urgent') { score += 12; factors.push({ text: 'Urgency/pressure tactic', val: '+12', type: 'negative' }); }
+      else { factors.push({ text: 'Normal context', val: '+0', type: 'positive' }); }
+
+      score = Math.min(score, 100);
+
+      const circle = document.getElementById('riskCircle');
+      const scoreEl = document.getElementById('riskScore');
+      const labelEl = document.getElementById('riskLabel');
+      const factorsEl = document.getElementById('riskFactors');
+      const actionEl = document.getElementById('riskAction');
+
+      let color, label, action, actionBg;
+      if (score >= 70) {
+        color = '#ff6b6b';
+        label = 'HIGH RISK';
+        action = '⚠️ This transaction shows multiple fraud indicators. We strongly recommend CANCELLING or verifying the recipient through a separate trusted channel before proceeding.';
+        actionBg = 'rgba(255, 107, 107, 0.1)';
+      } else if (score >= 40) {
+        color = '#f59e0b';
+        label = 'MODERATE RISK';
+        action = '⚡ This transaction has some unusual elements. Double-check the recipient UPI ID and verify the purpose before paying.';
+        actionBg = 'rgba(245, 158, 11, 0.1)';
+      } else {
+        color = '#00d4aa';
+        label = 'LOW RISK';
+        action = '✅ This transaction appears to be within normal parameters. Always verify the recipient name before confirming.';
+        actionBg = 'rgba(0, 212, 170, 0.1)';
+      }
+
+      circle.style.borderColor = color;
+      circle.classList.add('active');
+      scoreEl.textContent = score;
+      scoreEl.style.color = color;
+      labelEl.textContent = label;
+      labelEl.style.color = color;
+
+      factorsEl.innerHTML = factors.map(f => `
+        <li class="${f.type}">
+          <span>${f.text}</span>
+          <span style="color: ${f.type === 'negative' ? '#ff6b6b' : f.type === 'positive' ? '#00d4aa' : '#f59e0b'}">${f.val}</span>
+        </li>
+      `).join('');
+
+      actionEl.style.display = 'block';
+      actionEl.style.background = actionBg;
+      actionEl.style.border = `1px solid ${color}30`;
+      actionEl.style.color = color;
+      actionEl.textContent = action;
+    }
+
+    // ==================== UTILS ====================
+    function formatCurrency(num) {
+      if (num >= 100000) return '₹' + (num / 100000).toFixed(1) + 'L';
+      if (num >= 1000) return '₹' + num.toLocaleString('en-IN');
+      return '₹' + num;
+    }
+
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.innerHTML = `
+        <span style="font-size: 1.2rem;">${type === 'success' ? '✓' : type === 'danger' ? '✕' : '⚠'}</span>
+        <span>${message}</span>
+      `;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    function scrollToSection(id) {
+      document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+      document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+      if (event && event.target) event.target.classList.add('active');
+    }
+
+    // ==================== START ====================
+    init();
+  </script>
+</body>
+</html>
