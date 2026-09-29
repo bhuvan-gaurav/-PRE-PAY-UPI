@@ -1,953 +1,709 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SecurePay — UPI Fraud Awareness & Budget Manager</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg-primary: #0b1120;
-      --bg-secondary: #151e32;
-      --bg-card: #1e293b;
-      --accent: #10b981;
-      --accent-glow: rgba(16, 185, 129, 0.15);
-      --warning: #f59e0b;
-      --danger: #ef4444;
-      --info: #3b82f6;
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
-      --border: #334155;
-    }
-    
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg-primary); color: var(--text); line-height: 1.6; }
-    
-    /* Navigation */
-    .nav { position: fixed; top: 0; width: 100%; background: rgba(11, 17, 32, 0.9); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); z-index: 1000; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
-    .nav-logo { font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, var(--accent), #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: flex; align-items: center; gap: 0.5rem; }
-    .nav-links { display: flex; gap: 2rem; list-style: none; }
-    .nav-links a { color: var(--text-muted); text-decoration: none; font-weight: 500; transition: color 0.3s; cursor: pointer; }
-    .nav-links a:hover { color: var(--accent); }
-    .nav-links a.active { color: var(--accent); }
-    
-    /* Sections */
-    .section { padding: 6rem 2rem 4rem; max-width: 1200px; margin: 0 auto; }
-    .section-title { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; background: linear-gradient(135deg, #fff, var(--text-muted)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .section-subtitle { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 2rem; }
-    
-    /* Hero */
-    .hero { text-align: center; padding: 8rem 2rem 4rem; background: radial-gradient(ellipse at top, var(--accent-glow), transparent 60%); }
-    .hero h1 { font-size: 3.5rem; font-weight: 800; line-height: 1.1; margin-bottom: 1rem; }
-    .hero h1 span { background: linear-gradient(135deg, var(--accent), #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .hero p { font-size: 1.25rem; color: var(--text-muted); max-width: 600px; margin: 0 auto 2rem; }
-    .hero-badges { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 2rem; }
-    .badge { background: var(--bg-card); border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: 9999px; font-size: 0.875rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem; }
-    .badge-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
-    
-    /* Cards Grid */
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
-    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; transition: transform 0.3s, border-color 0.3s; }
-    .card:hover { transform: translateY(-4px); border-color: var(--accent); }
-    .card-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1rem; }
-    .card h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; }
-    .card p { color: var(--text-muted); font-size: 0.95rem; }
-    .card-tag { display: inline-block; background: rgba(239, 68, 68, 0.1); color: var(--danger); padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; margin-top: 1rem; }
-    
-    /* 50-30-20 Calculator */
-    .calc-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; }
-    .calc-input-group { margin-bottom: 1.5rem; }
-    .calc-input-group label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-muted); }
-    .calc-input { width: 100%; padding: 0.875rem 1rem; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-size: 1rem; font-family: inherit; transition: border-color 0.3s; }
-    .calc-input:focus { outline: none; border-color: var(--accent); }
-    .calc-results { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 2rem; }
-    .calc-result-card { text-align: center; padding: 1.5rem; border-radius: 16px; background: var(--bg-secondary); border: 1px solid var(--border); }
-    .calc-result-card.needs { border-color: rgba(59, 130, 246, 0.3); }
-    .calc-result-card.wants { border-color: rgba(245, 158, 11, 0.3); }
-    .calc-result-card.savings { border-color: rgba(16, 185, 129, 0.3); }
-    .calc-result-value { font-size: 1.75rem; font-weight: 800; margin-bottom: 0.25rem; }
-    .calc-result-value.needs { color: #60a5fa; }
-    .calc-result-value.wants { color: #fbbf24; }
-    .calc-result-value.savings { color: #34d399; }
-    .calc-result-label { font-size: 0.875rem; color: var(--text-muted); font-weight: 600; }
-    .calc-result-pct { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; }
-    
-    /* Chart Canvas */
-    .chart-container { display: flex; justify-content: center; margin: 2rem 0; }
-    canvas { max-width: 100%; }
-    
-    /* Spending Tracker */
-    .tracker-layout { display: grid; grid-template-columns: 1fr 1.5fr; gap: 2rem; }
-    @media (max-width: 900px) { .tracker-layout { grid-template-columns: 1fr; } }
-    
-    .form-group { margin-bottom: 1rem; }
-    .form-group label { display: block; font-size: 0.875rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.375rem; }
-    .form-group input, .form-group select { width: 100%; padding: 0.75rem 1rem; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: inherit; }
-    .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--accent); }
-    .btn { padding: 0.75rem 1.5rem; border: none; border-radius: 10px; font-weight: 600; font-family: inherit; cursor: pointer; transition: all 0.3s; font-size: 0.95rem; }
-    .btn-primary { background: linear-gradient(135deg, var(--accent), #059669); color: white; }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3); }
-    .btn-danger { background: linear-gradient(135deg, var(--danger), #dc2626); color: white; }
-    .btn-warning { background: linear-gradient(135deg, var(--warning), #d97706); color: white; }
-    .btn-sm { padding: 0.5rem 1rem; font-size: 0.875rem; }
-    
-    /* Transaction List */
-    .tx-list { max-height: 400px; overflow-y: auto; }
-    .tx-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--bg-secondary); border-radius: 12px; margin-bottom: 0.75rem; border: 1px solid transparent; transition: all 0.3s; }
-    .tx-item:hover { border-color: var(--border); }
-    .tx-info h4 { font-weight: 600; font-size: 0.95rem; }
-    .tx-info span { font-size: 0.8rem; color: var(--text-muted); }
-    .tx-amount { font-weight: 700; font-size: 1.1rem; }
-    .tx-amount.negative { color: #f87171; }
-    .tx-category { font-size: 0.75rem; padding: 0.2rem 0.6rem; border-radius: 9999px; background: var(--bg-card); color: var(--text-muted); margin-left: 0.5rem; }
-    
-    /* Budget Limits */
-    .limit-item { margin-bottom: 1.5rem; }
-    .limit-header { display: flex; justify-content: space-between; margin-bottom: 0.5rem; }
-    .limit-header span { font-weight: 600; }
-    .limit-header small { color: var(--text-muted); }
-    .limit-bar-bg { height: 10px; background: var(--bg-secondary); border-radius: 9999px; overflow: hidden; }
-    .limit-bar-fill { height: 100%; border-radius: 9999px; transition: width 0.5s ease; }
-    .limit-bar-fill.safe { background: linear-gradient(90deg, var(--accent), #34d399); }
-    .limit-bar-fill.warning { background: linear-gradient(90deg, var(--warning), #fbbf24); }
-    .limit-bar-fill.danger { background: linear-gradient(90deg, var(--danger), #f87171); }
-    .limit-alert { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: var(--danger); padding: 0.75rem 1rem; border-radius: 10px; font-size: 0.875rem; margin-top: 1rem; display: none; }
-    .limit-alert.show { display: block; }
-    
-    /* Risk Analyzer */
-    .risk-container { background: var(--bg-card); border-radius: 20px; padding: 2rem; border: 1px solid var(--border); }
-    .risk-score-circle { width: 160px; height: 160px; border-radius: 50%; margin: 0 auto 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 4px solid; transition: all 0.5s ease; background: var(--bg-secondary); }
-    .risk-score-value { font-size: 3rem; font-weight: 800; }
-    .risk-score-label { font-size: 0.875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
-    .risk-factors { list-style: none; }
-    .risk-factors li { padding: 0.75rem; background: var(--bg-secondary); border-radius: 10px; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center; }
-    .risk-factors li span:first-child { color: var(--text-muted); }
-    .risk-factors li span:last-child { font-weight: 700; }
-    .risk-factors li.positive { border-left: 3px solid var(--accent); }
-    .risk-factors li.negative { border-left: 3px solid var(--danger); }
-    .risk-factors li.neutral { border-left: 3px solid var(--warning); }
-    
-    /* Security Checklist */
-    .checklist-item { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: var(--bg-secondary); border-radius: 12px; margin-bottom: 0.75rem; cursor: pointer; transition: all 0.3s; border: 1px solid transparent; }
-    .checklist-item:hover { border-color: var(--border); }
-    .checklist-item.checked { opacity: 0.6; }
-    .checklist-item.checked .check-circle { background: var(--accent); border-color: var(--accent); }
-    .check-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.3s; }
-    .check-circle::after { content: '✓'; color: white; font-size: 0.75rem; font-weight: 700; opacity: 0; transition: opacity 0.3s; }
-    .checklist-item.checked .check-circle::after { opacity: 1; }
-    .checklist-text { font-weight: 500; }
-    .checklist-item.checked .checklist-text { text-decoration: line-through; color: var(--text-muted); }
-    
-    /* Stats Row */
-    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
-    @media (max-width: 768px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
-    .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; text-align: center; }
-    .stat-value { font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, #fff, var(--text-muted)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .stat-label { font-size: 0.875rem; color: var(--text-muted); margin-top: 0.25rem; }
-    
-    /* Scrollbar */
-    ::-webkit-scrollbar { width: 8px; }
-    ::-webkit-scrollbar-track { background: var(--bg-primary); }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #475569; }
-    
-    /* Responsive */
-    @media (max-width: 768px) {
-      .nav-links { display: none; }
-      .hero h1 { font-size: 2.5rem; }
-      .calc-results { grid-template-columns: 1fr; }
-      .section { padding: 4rem 1rem 2rem; }
-    }
-    
-    /* Animations */
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    .animate-in { animation: fadeIn 0.6s ease forwards; }
-    
-    /* Toast */
-    .toast-container { position: fixed; bottom: 2rem; right: 2rem; z-index: 9999; }
-    .toast { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.5rem; margin-top: 0.5rem; box-shadow: 0 10px 40px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 0.75rem; animation: slideIn 0.3s ease; }
-    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-    .toast-success { border-color: var(--accent); }
-    .toast-danger { border-color: var(--danger); }
-    .toast-warning { border-color: var(--warning); }
-  </style>
-</head>
-<body>
+# SecurePay — UPI Fraud Awareness & Budget Manager
 
-  <!-- Navigation -->
-  <nav class="nav">
-    <div class="nav-logo">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      SecurePay
-    </div>
-    <ul class="nav-links">
-      <li><a onclick="scrollToSection('fraud')" class="active">Fraud Awareness</a></li>
-      <li><a onclick="scrollToSection('budget')">50-30-20 Rule</a></li>
-      <li><a onclick="scrollToSection('tracker')">Spending Tracker</a></li>
-      <li><a onclick="scrollToSection('limits')">Budget Limits</a></li>
-      <li><a onclick="scrollToSection('risk')">Risk Analyzer</a></li>
-    </ul>
-  </nav>
+SecurePay is an interactive web-based financial safety and budgeting tool designed to help users understand common UPI fraud techniques, manage personal spending, follow the 50-30-20 budgeting rule, set category-wise spending limits, and evaluate the risk of a transaction before making a payment.
 
-  <!-- Hero -->
-  <section class="hero">
-    <h1>Secure Your UPI.<br><span>Master Your Money.</span></h1>
-    <p>Learn to identify fraud before it happens, track every rupee with the 50-30-20 rule, and set smart limits on your UPI spending.</p>
-    <div class="hero-badges">
-      <div class="badge"><span class="badge-dot"></span>Fraud Prevention</div>
-      <div class="badge"><span class="badge-dot" style="background:var(--warning)"></span>Budget Planning</div>
-      <div class="badge"><span class="badge-dot" style="background:var(--info)"></span>Expense Tracking</div>
-      <div class="badge"><span class="badge-dot" style="background:var(--danger)"></span>Risk Analysis</div>
-    </div>
-  </section>
+The project combines **UPI fraud awareness, personal finance management, spending analytics, budget monitoring, and pre-transaction risk analysis** into a single responsive interface. :chatgpt-content-reference{index="0"}
 
-  <!-- Fraud Awareness -->
-  <section class="section" id="fraud">
-    <h2 class="section-title">UPI Fraud Awareness</h2>
-    <p class="section-subtitle">Know the enemy before it strikes. Here are the most common UPI fraud tactics in India today.</p>
-    
-    <div class="grid" id="fraud-grid"></div>
-    
-    <div style="margin-top: 3rem;">
-      <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem;">🔒 Security Checklist</h3>
-      <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Tap each item to mark it complete. Stay safe, stay vigilant.</p>
-      <div id="checklist"></div>
-    </div>
-  </section>
+---
 
-  <!-- 50-30-20 Calculator -->
-  <section class="section" id="budget" style="background: var(--bg-secondary); border-radius: 24px; margin: 2rem auto; max-width: 1200px;">
-    <h2 class="section-title">50-30-20 Budget Rule</h2>
-    <p class="section-subtitle">The golden rule of personal finance. Allocate your UPI income smartly across Needs, Wants, and Savings.</p>
-    
-    <div class="calc-container">
-      <div class="calc-input-group">
-        <label>💰 Monthly Income (₹)</label>
-        <input type="number" class="calc-input" id="incomeInput" placeholder="e.g. 50000" value="50000" oninput="calculateBudget()">
-      </div>
-      
-      <div class="chart-container">
-        <canvas id="budgetChart" width="300" height="300"></canvas>
-      </div>
-      
-      <div class="calc-results">
-        <div class="calc-result-card needs">
-          <div class="calc-result-value needs" id="needsValue">₹25,000</div>
-          <div class="calc-result-label">Needs (50%)</div>
-          <div class="calc-result-pct">Rent, groceries, utilities, transport, healthcare</div>
-        </div>
-        <div class="calc-result-card wants">
-          <div class="calc-result-value wants" id="wantsValue">₹15,000</div>
-          <div class="calc-result-label">Wants (30%)</div>
-          <div class="calc-result-pct">Dining, entertainment, shopping, hobbies</div>
-        </div>
-        <div class="calc-result-card savings">
-          <div class="calc-result-value savings" id="savingsValue">₹10,000</div>
-          <div class="calc-result-label">Savings (20%)</div>
-          <div class="calc-result-pct">Emergency fund, investments, debt repayment</div>
-        </div>
-      </div>
-      
-      <div style="margin-top: 2rem; padding: 1.5rem; background: var(--bg-primary); border-radius: 12px; border: 1px solid var(--border);">
-        <h4 style="margin-bottom: 0.75rem; font-weight: 700;">📊 UPI Spending Allocation Guide</h4>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; color: var(--text-muted); font-size: 0.9rem;">
-          <div>🍔 <strong>Food:</strong> Needs (if groceries) / Wants (if dining out)</div>
-          <div>🚗 <strong>Transport:</strong> Needs (commute) / Wants (cab for leisure)</div>
-          <div>🛒 <strong>Shopping:</strong> Wants (discretionary)</div>
-          <div>💡 <strong>Utilities:</strong> Needs (essential bills)</div>
-          <div>🎬 <strong>Entertainment:</strong> Wants (subscriptions, events)</div>
-          <div>💊 <strong>Health:</strong> Needs (medicines, insurance)</div>
-        </div>
-      </div>
-    </div>
-  </section>
+## Project Overview
 
-  <!-- Spending Tracker -->
-  <section class="section" id="tracker">
-    <h2 class="section-title">UPI Spending Tracker</h2>
-    <p class="section-subtitle">Log every transaction, categorize it by the 50-30-20 rule, and watch your financial health improve.</p>
-    
-    <div class="stats-row">
-      <div class="stat-card">
-        <div class="stat-value" id="totalSpent">₹0</div>
-        <div class="stat-label">Total Spent</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="needsSpent" style="font-size: 1.5rem;">₹0</div>
-        <div class="stat-label">Needs (50%)</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="wantsSpent" style="font-size: 1.5rem;">₹0</div>
-        <div class="stat-label">Wants (30%)</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="savingsSpent" style="font-size: 1.5rem;">₹0</div>
-        <div class="stat-label">Savings (20%)</div>
-      </div>
-    </div>
-    
-    <div class="tracker-layout">
-      <div>
-        <div class="card" style="margin-bottom: 1.5rem;">
-          <h3 style="margin-bottom: 1rem;">➕ Add Transaction</h3>
-          <div class="form-group">
-            <label>Amount (₹)</label>
-            <input type="number" id="txAmount" placeholder="0">
-          </div>
-          <div class="form-group">
-            <label>Category</label>
-            <select id="txCategory">
-              <option value="food">🍔 Food & Dining</option>
-              <option value="transport">🚗 Transport</option>
-              <option value="shopping">🛒 Shopping</option>
-              <option value="utilities">💡 Utilities & Bills</option>
-              <option value="entertainment">🎬 Entertainment</option>
-              <option value="health">💊 Health & Medical</option>
-              <option value="education">📚 Education</option>
-              <option value="savings">💰 Savings / Investment</option>
-              <option value="others">📦 Others</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Bucket (50-30-20)</label>
-            <select id="txBucket">
-              <option value="needs">Needs (50%)</option>
-              <option value="wants">Wants (30%)</option>
-              <option value="savings">Savings (20%)</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Merchant / UPI ID</label>
-            <input type="text" id="txMerchant" placeholder="e.g. Zomato, Amazon, @upi">
-          </div>
-          <button class="btn btn-primary" style="width: 100%;" onclick="addTransaction()">Add Transaction</button>
-        </div>
-        
-        <div class="chart-container">
-          <canvas id="spendingChart" width="280" height="280"></canvas>
-        </div>
-      </div>
-      
-      <div>
-        <div class="card">
-          <h3 style="margin-bottom: 1rem;">📋 Recent Transactions</h3>
-          <div class="tx-list" id="txList"></div>
-          <div id="emptyState" style="text-align: center; padding: 3rem; color: var(--text-muted);">
-            <div style="font-size: 3rem; margin-bottom: 1rem;">📝</div>
-            <p>No transactions yet. Add your first UPI payment above!</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+Digital payments through UPI have made transactions fast and convenient, but they also introduce various security risks. SecurePay provides an educational and interactive environment where users can learn about common fraud patterns while also maintaining better control over their spending.
 
-  <!-- Budget Limits -->
-  <section class="section" id="limits">
-    <h2 class="section-title">Smart Budget Limits</h2>
-    <p class="section-subtitle">Set monthly spending caps per category. Get visual warnings when you're approaching your limit.</p>
-    
-    <div class="grid" id="limitsGrid"></div>
-    
-    <div class="limit-alert" id="limitAlert">
-      ⚠️ <strong>Alert:</strong> You have exceeded or are about to exceed your budget limit in one or more categories!
-    </div>
-  </section>
+The application is divided into five major sections:
 
-  <!-- Risk Analyzer -->
-  <section class="section" id="risk">
-    <h2 class="section-title">Pre-Transaction Risk Analyzer</h2>
-    <p class="section-subtitle">Before you tap 'Pay', run a quick risk check. Inspired by real UPI fraud patterns.</p>
-    
-    <div class="risk-container">
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-        <div>
-          <div class="form-group">
-            <label>Amount (₹)</label>
-            <input type="number" id="riskAmount" placeholder="e.g. 25000">
-          </div>
-          <div class="form-group">
-            <label>Recipient Type</label>
-            <select id="riskRecipient">
-              <option value="known">Known Contact (Paid Before)</option>
-              <option value="new">New UPI ID / Unknown</option>
-              <option value="suspicious">Suspicious / Random ID</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Time of Transaction</label>
-            <select id="riskTime">
-              <option value="normal">Normal Hours (6 AM - 11 PM)</option>
-              <option value="late">Late Night (11 PM - 5 AM)</option>
-              <option value="verylate">Very Unusual (2 AM - 5 AM)</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Device</label>
-            <select id="riskDevice">
-              <option value="known">Your Regular Device</option>
-              <option value="new">New Device / Browser</option>
-              <option value="public">Public / Shared Device</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Transaction Context</label>
-            <select id="riskContext">
-              <option value="normal">Regular Purchase / Transfer</option>
-              <option value="urgent">Urgent / Pressure to Pay</option>
-              <option value="reward">Prize / Cashback / Reward Claim</option>
-              <option value="kyc">KYC / Account Update Request</option>
-            </select>
-          </div>
-          <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" onclick="analyzeRisk()">Analyze Risk</button>
-        </div>
-        
-        <div style="text-align: center;">
-          <div class="risk-score-circle" id="riskCircle" style="border-color: var(--border);">
-            <div class="risk-score-value" id="riskScore" style="color: var(--text-muted);">--</div>
-            <div class="risk-score-label" id="riskLabel" style="color: var(--text-muted);">Enter Details</div>
-          </div>
-          
-          <ul class="risk-factors" id="riskFactors"></ul>
-          
-          <div id="riskAction" style="margin-top: 1.5rem; padding: 1rem; border-radius: 12px; display: none;"></div>
-        </div>
-      </div>
-    </div>
-  </section>
+- UPI Fraud Awareness
+- 50-30-20 Budget Calculator
+- UPI Spending Tracker
+- Smart Budget Limits
+- Pre-Transaction Risk Analyzer
 
-  <!-- Footer -->
-  <footer style="text-align: center; padding: 3rem 2rem; border-top: 1px solid var(--border); color: var(--text-muted); margin-top: 4rem;">
-    <p style="font-weight: 600; color: var(--text); margin-bottom: 0.5rem;">SecurePay — UPI Fraud Awareness & Budget Manager</p>
-    <p style="font-size: 0.875rem;">Built for safer digital payments. Always verify before you pay. Never share your UPI PIN.</p>
-    <p style="font-size: 0.75rem; margin-top: 1rem; opacity: 0.6;">⚠️ This is an educational tool. For actual fraud incidents, contact your bank immediately and report to NPCI.</p>
-  </footer>
+The application also includes a security checklist that allows users to track important UPI safety practices. :chatgpt-content-reference{index="1"}
 
-  <div class="toast-container" id="toastContainer"></div>
+---
 
-  <script>
-    // ==================== FRAUD DATA ====================
-    const fraudTypes = [
-      {
-        icon: '🎣',
-        title: 'Phishing Links',
-        desc: 'Fraudsters send fake payment links that look identical to real UPI apps. Once you enter your PIN, money is gone instantly.',
-        tag: 'HIGH RISK',
-        color: '#ef4444',
-        prevention: 'Never click payment links from SMS/Email. Always open your UPI app directly.'
-      },
-      {
-        icon: '📱',
-        title: 'Fake Customer Care',
-        desc: 'Scammers pose as bank/UPI customer care and ask for OTP, PIN, or to "receive" a refund by entering your PIN.',
-        tag: 'VERY COMMON',
-        color: '#ef4444',
-        prevention: 'No bank ever asks for PIN or OTP. Disconnect immediately.'
-      },
-      {
-        icon: '🔲',
-        title: 'QR Code Scam',
-        desc: 'You scan a QR to "receive" money, but it is actually a collect request. You enter PIN and lose money instead.',
-        tag: 'TRICKY',
-        color: '#f59e0b',
-        prevention: 'You NEVER need to enter PIN to RECEIVE money. PIN is only for sending.'
-      },
-      {
-        icon: '💬',
-        title: 'UPI Collect Request Fraud',
-        desc: 'You get a collect request with an urgent message ("electricity bill due", "delivery fee"). Approving it sends money to scammer.',
-        tag: 'COMMON',
-        color: '#f59e0b',
-        prevention: 'Verify the requester UPI ID. Reject unknown collect requests.'
-      },
-      {
-        icon: '📲',
-        title: 'SIM Swap Attack',
-        desc: 'Fraudster duplicates your SIM to receive OTPs and drain accounts via UPI.',
-        tag: 'ADVANCED',
-        color: '#ef4444',
-        prevention: 'If your phone loses network suddenly, contact your telecom provider immediately.'
-      },
-      {
-        icon: '🦠',
-        title: 'Malicious Apps',
-        desc: 'Fake UPI apps or screen-sharing apps (like AnyDesk) that record your screen while you enter PIN.',
-        tag: 'DANGEROUS',
-        color: '#ef4444',
-        prevention: 'Download apps only from Play Store/App Store. Never install remote access apps.'
-      }
-    ];
+## Key Features
 
-    const checklistItems = [
-      'I never share my UPI PIN with anyone',
-      'I verify the recipient name before every payment',
-      'I do not click on payment links from unknown sources',
-      'I check if it is a collect request (money going OUT) before approving',
-      'I have enabled app lock on my UPI application',
-      'I report suspicious UPI IDs to my bank',
-      'I check my transaction history weekly',
-      'I never enter PIN to "receive" money or cashback'
-    ];
+### 1. UPI Fraud Awareness
 
-    // ==================== STATE ====================
-    let transactions = JSON.parse(localStorage.getItem('securepay_tx')) || [];
-    let limits = JSON.parse(localStorage.getItem('securepay_limits')) || {
-      food: 8000,
-      transport: 5000,
-      shopping: 10000,
-      utilities: 6000,
-      entertainment: 4000,
-      health: 3000,
-      education: 5000,
-      others: 3000
-    };
+The fraud awareness section explains common UPI fraud techniques and provides prevention tips for each one.
 
-    const categoryLabels = {
-      food: '🍔 Food & Dining',
-      transport: '🚗 Transport',
-      shopping: '🛒 Shopping',
-      utilities: '💡 Utilities',
-      entertainment: '🎬 Entertainment',
-      health: '💊 Health',
-      education: '📚 Education',
-      savings: '💰 Savings',
-      others: '📦 Others'
-    };
+The application covers:
 
-    // ==================== INIT ====================
-    function init() {
-      renderFraudCards();
-      renderChecklist();
-      calculateBudget();
-      renderTransactions();
-      renderLimits();
-      updateStats();
-      drawSpendingChart();
-    }
+- Phishing Links
+- Fake Customer Care
+- QR Code Scams
+- UPI Collect Request Fraud
+- SIM Swap Attacks
+- Malicious Applications
 
-    // ==================== FRAUD SECTION ====================
-    function renderFraudCards() {
-      const grid = document.getElementById('fraud-grid');
-      grid.innerHTML = fraudTypes.map((f, i) => `
-        <div class="card animate-in" style="animation-delay: ${i * 0.1}s">
-          <div class="card-icon" style="background: ${f.color}15; color: ${f.color};">${f.icon}</div>
-          <h3>${f.title}</h3>
-          <p>${f.desc}</p>
-          <div style="margin-top: 1rem; padding: 0.75rem; background: var(--bg-primary); border-radius: 8px; font-size: 0.85rem;">
-            <strong style="color: var(--accent);">✓ Prevention:</strong> ${f.prevention}
-          </div>
-          <span class="card-tag" style="background: ${f.color}15; color: ${f.color};">${f.tag}</span>
-        </div>
-      `).join('');
-    }
+Each fraud type includes:
 
-    function renderChecklist() {
-      const container = document.getElementById('checklist');
-      const saved = JSON.parse(localStorage.getItem('securepay_checklist')) || [];
-      container.innerHTML = checklistItems.map((item, i) => `
-        <div class="checklist-item ${saved.includes(i) ? 'checked' : ''}" onclick="toggleChecklist(${i})">
-          <div class="check-circle"></div>
-          <span class="checklist-text">${item}</span>
-        </div>
-      `).join('');
-    }
+- Fraud category
+- Description
+- Risk classification
+- Prevention advice
 
-    function toggleChecklist(index) {
-      const saved = JSON.parse(localStorage.getItem('securepay_checklist')) || [];
-      const pos = saved.indexOf(index);
-      if (pos > -1) saved.splice(pos, 1);
-      else saved.push(index);
-      localStorage.setItem('securepay_checklist', JSON.stringify(saved));
-      renderChecklist();
-      showToast(`Security tip ${pos > -1 ? 'unchecked' : 'checked'}!`, 'success');
-    }
+For example, the QR Code Scam section explains the risk of mistakenly approving a payment while believing that a QR code is being used to receive money. :chatgpt-content-reference{index="2"}
 
-    // ==================== 50-30-20 CALCULATOR ====================
-    function calculateBudget() {
-      const income = parseFloat(document.getElementById('incomeInput').value) || 0;
-      const needs = income * 0.5;
-      const wants = income * 0.3;
-      const savings = income * 0.2;
-      
-      document.getElementById('needsValue').textContent = formatCurrency(needs);
-      document.getElementById('wantsValue').textContent = formatCurrency(wants);
-      document.getElementById('savingsValue').textContent = formatCurrency(savings);
-      
-      drawBudgetChart(needs, wants, savings);
-    }
+### Security Checklist
 
-    function drawBudgetChart(needs, wants, savings) {
-      const canvas = document.getElementById('budgetChart');
-      const ctx = canvas.getContext('2d');
-      const total = needs + wants + savings;
-      if (total === 0) return;
-      
-      const centerX = canvas.width / 2;
-      const centerY = canvas.height / 2;
-      const radius = 100;
-      
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      const data = [
-        { value: needs, color: '#3b82f6', label: 'Needs' },
-        { value: wants, color: '#f59e0b', label: 'Wants' },
-        { value: savings, color: '#10b981', label: 'Savings' }
-      ];
-      
-      let currentAngle = -Math.PI / 2;
-      
-      data.forEach(segment => {
-        const sliceAngle = (segment.value / total) * 2 * Math.PI;
-        
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + sliceAngle);
-        ctx.closePath();
-        ctx.fillStyle = segment.color;
-        ctx.fill();
-        
-        const labelAngle = currentAngle + sliceAngle / 2;
-        const labelX = centerX + Math.cos(labelAngle) * (radius * 0.65);
-        const labelY = centerY + Math.sin(labelAngle) * (radius * 0.65);
-        ctx.fillStyle = '#fff';
-        ctx.font = 'bold 14px Inter';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(segment.label, labelX, labelY);
-        
-        currentAngle += sliceAngle;
-      });
-      
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius * 0.4, 0, 2 * Math.PI);
-      ctx.fillStyle = '#1e293b';
-      ctx.fill();
-      
-      ctx.fillStyle = '#fff';
-      ctx.font = 'bold 16px Inter';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('Budget', centerX, centerY);
-    }
+SecurePay provides an interactive checklist containing important UPI security practices.
 
-    // ==================== SPENDING TRACKER ====================
-    function addTransaction() {
-      const amount = parseFloat(document.getElementById('txAmount').value);
-      const category = document.getElementById('txCategory').value;
-      const bucket = document.getElementById('txBucket').value;
-      const merchant = document.getElementById('txMerchant').value || 'Unknown';
-      
-      if (!amount || amount <= 0) {
-        showToast('Please enter a valid amount', 'danger');
-        return;
-      }
-      
-      const tx = {
-        id: Date.now(),
-        amount,
-        category,
-        bucket,
-        merchant,
-        date: new Date().toISOString()
-      };
-      
-      transactions.unshift(tx);
-      localStorage.setItem('securepay_tx', JSON.stringify(transactions));
-      
-      document.getElementById('txAmount').value = '';
-      document.getElementById('txMerchant').value = '';
-      
-      renderTransactions();
-      updateStats();
-      drawSpendingChart();
-      renderLimits();
-      showToast(`Added ₹${amount} to ${categoryLabels[category]}`, 'success');
-    }
+Users can mark practices as completed, such as:
 
-    function deleteTransaction(id) {
-      transactions = transactions.filter(t => t.id !== id);
-      localStorage.setItem('securepay_tx', JSON.stringify(transactions));
-      renderTransactions();
-      updateStats();
-      drawSpendingChart();
-      renderLimits();
-      showToast('Transaction deleted', 'warning');
-    }
+- Never sharing a UPI PIN
+- Verifying the recipient before payment
+- Avoiding suspicious payment links
+- Checking collect requests
+- Enabling application locks
+- Reporting suspicious UPI IDs
+- Checking transaction history
+- Never entering a PIN to receive money
 
-    function renderTransactions() {
-      const list = document.getElementById('txList');
-      const empty = document.getElementById('emptyState');
-      
-      if (transactions.length === 0) {
-        list.innerHTML = '';
-        empty.style.display = 'block';
-        return;
-      }
-      
-      empty.style.display = 'none';
-      list.innerHTML = transactions.slice(0, 20).map(tx => {
-        const date = new Date(tx.date).toLocaleDateString('en-IN');
-        const bucketColors = { needs: '#60a5fa', wants: '#fbbf24', savings: '#34d399' };
-        return `
-          <div class="tx-item">
-            <div class="tx-info">
-              <h4>${tx.merchant} <span class="tx-category" style="border: 1px solid ${bucketColors[tx.bucket]}; color: ${bucketColors[tx.bucket]};">${tx.bucket}</span></h4>
-              <span>${categoryLabels[tx.category]} • ${date}</span>
-            </div>
-            <div style="display: flex; align-items: center; gap: 0.75rem;">
-              <span class="tx-amount negative">-₹${tx.amount.toLocaleString('en-IN')}</span>
-              <button class="btn btn-danger btn-sm" onclick="deleteTransaction(${tx.id})">✕</button>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
+Checklist progress is stored locally in the browser. :chatgpt-content-reference{index="3"}
 
-    function updateStats() {
-      const total = transactions.reduce((sum, t) => sum + t.amount, 0);
-      const needs = transactions.filter(t => t.bucket === 'needs').reduce((sum, t) => sum + t.amount, 0);
-      const wants = transactions.filter(t => t.bucket === 'wants').reduce((sum, t) => sum + t.amount, 0);
-      const savings = transactions.filter(t => t.bucket === 'savings').reduce((sum, t) => sum + t.amount, 0);
-      
-      document.getElementById('totalSpent').textContent = formatCurrency(total);
-      document.getElementById('needsSpent').textContent = formatCurrency(needs);
-      document.getElementById('wantsSpent').textContent = formatCurrency(wants);
-      document.getElementById('savingsSpent').textContent = formatCurrency(savings);
-    }
+---
 
-    function drawSpendingChart() {
-      const canvas = document.getElementById('spendingChart');
-      const ctx = canvas.getContext('2d');
-      
-      const categoryTotals = {};
-      transactions.forEach(t => {
-        categoryTotals[t.category] = (categoryTotals[t.category] || 0) + t.amount;
-      });
-      
-      const data = Object.entries(categoryTotals);
-      if (data.length === 0) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = '#64748b';
-        ctx.font = '14px Inter';
-        ctx.textAlign = 'center';
-        ctx.fillText('No data yet', canvas.width/2, canvas.height/2);
-        return;
-      }
-      
-      const total = data.reduce((sum, [, val]) => sum + val, 0);
-      const colors = ['#3b82f6', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316', '#84cc16'];
-      
-      const centerX = canvas.width / 2;
-      const centerY = canvas.height / 2;
-      const radius = 90;
-      
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      let currentAngle = -Math.PI / 2;
-      data.forEach(([cat, val], i) => {
-        const sliceAngle = (val / total) * 2 * Math.PI;
-        
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + sliceAngle);
-        ctx.closePath();
-        ctx.fillStyle = colors[i % colors.length];
-        ctx.fill();
-        
-        currentAngle += sliceAngle;
-      });
-      
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius * 0.45, 0, 2 * Math.PI);
-      ctx.fillStyle = '#1e293b';
-      ctx.fill();
-      
-      ctx.fillStyle = '#fff';
-      ctx.font = 'bold 14px Inter';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('Spending', centerX, centerY - 8);
-      ctx.font = '12px Inter';
-      ctx.fillStyle = '#94a3b8';
-      ctx.fillText(`${data.length} categories`, centerX, centerY + 10);
-      
-      let legendY = 10;
-      data.forEach(([cat, val], i) => {
-        const pct = ((val / total) * 100).toFixed(0);
-        ctx.fillStyle = colors[i % colors.length];
-        ctx.fillRect(10, legendY, 12, 12);
-        ctx.fillStyle = '#94a3b8';
-        ctx.font = '11px Inter';
-        ctx.textAlign = 'left';
-        ctx.fillText(`${categoryLabels[cat].split(' ')[1]} ${pct}%`, 28, legendY + 10);
-        legendY += 20;
-      });
-    }
+## 2. 50-30-20 Budget Calculator
 
-    // ==================== BUDGET LIMITS ====================
-    function renderLimits() {
-      const grid = document.getElementById('limitsGrid');
-      const categoryTotals = {};
-      transactions.forEach(t => {
-        categoryTotals[t.category] = (categoryTotals[t.category] || 0) + t.amount;
-      });
-      
-      let hasAlert = false;
-      
-      grid.innerHTML = Object.entries(limits).map(([cat, limit]) => {
-        const spent = categoryTotals[cat] || 0;
-        const pct = Math.min((spent / limit) * 100, 100);
-        const status = pct >= 90 ? 'danger' : pct >= 70 ? 'warning' : 'safe';
-        if (pct >= 90) hasAlert = true;
-        
-        return `
-          <div class="card">
-            <div class="limit-item" style="margin-bottom: 0;">
-              <div class="limit-header">
-                <span>${categoryLabels[cat]}</span>
-                <small>₹${spent.toLocaleString('en-IN')} / ₹${limit.toLocaleString('en-IN')}</small>
-              </div>
-              <div class="limit-bar-bg">
-                <div class="limit-bar-fill ${status}" style="width: ${pct}%"></div>
-              </div>
-              <div style="display: flex; justify-content: space-between; margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-muted);">
-                <span>${pct.toFixed(0)}% used</span>
-                <span>Limit: ₹${limit.toLocaleString('en-IN')}</span>
-              </div>
-              <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem;">
-                <input type="number" class="calc-input" style="flex: 1; padding: 0.5rem;" id="limit-${cat}" value="${limit}" placeholder="Set limit">
-                <button class="btn btn-primary btn-sm" onclick="updateLimit('${cat}')">Update</button>
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
-      
-      document.getElementById('limitAlert').classList.toggle('show', hasAlert);
-    }
+The application implements the **50-30-20 budgeting rule**.
 
-    function updateLimit(category) {
-      const val = parseFloat(document.getElementById(`limit-${category}`).value);
-      if (!val || val <= 0) {
-        showToast('Enter a valid limit', 'danger');
-        return;
-      }
-      limits[category] = val;
-      localStorage.setItem('securepay_limits', JSON.stringify(limits));
-      renderLimits();
-      showToast(`Limit updated for ${categoryLabels[category]}`, 'success');
-    }
+Users enter their monthly income, and the application automatically calculates:
 
-    // ==================== RISK ANALYZER ====================
-    function analyzeRisk() {
-      const amount = parseFloat(document.getElementById('riskAmount').value) || 0;
-      const recipient = document.getElementById('riskRecipient').value;
-      const time = document.getElementById('riskTime').value;
-      const device = document.getElementById('riskDevice').value;
-      const context = document.getElementById('riskContext').value;
-      
-      if (amount <= 0) {
-        showToast('Please enter an amount', 'danger');
-        return;
-      }
-      
-      let score = 0;
-      const factors = [];
-      
-      if (amount > 50000) { score += 25; factors.push({ text: 'Very high amount', val: '+25', type: 'negative' }); }
-      else if (amount > 20000) { score += 15; factors.push({ text: 'High amount', val: '+15', type: 'negative' }); }
-      else if (amount > 10000) { score += 8; factors.push({ text: 'Moderate amount', val: '+8', type: 'neutral' }); }
-      else { factors.push({ text: 'Normal amount', val: '+0', type: 'positive' }); }
-      
-      if (recipient === 'suspicious') { score += 25; factors.push({ text: 'Suspicious recipient', val: '+25', type: 'negative' }); }
-      else if (recipient === 'new') { score += 15; factors.push({ text: 'New recipient', val: '+15', type: 'neutral' }); }
-      else { factors.push({ text: 'Known recipient', val: '+0', type: 'positive' }); }
-      
-      if (time === 'verylate') { score += 15; factors.push({ text: 'Very unusual time', val: '+15', type: 'negative' }); }
-      else if (time === 'late') { score += 8; factors.push({ text: 'Late night transaction', val: '+8', type: 'neutral' }); }
-      else { factors.push({ text: 'Normal time', val: '+0', type: 'positive' }); }
-      
-      if (device === 'public') { score += 15; factors.push({ text: 'Public/shared device', val: '+15', type: 'negative' }); }
-      else if (device === 'new') { score += 8; factors.push({ text: 'New device', val: '+8', type: 'neutral' }); }
-      else { factors.push({ text: 'Known device', val: '+0', type: 'positive' }); }
-      
-      if (context === 'reward') { score += 20; factors.push({ text: 'Prize/reward scam pattern', val: '+20', type: 'negative' }); }
-      else if (context === 'kyc') { score += 20; factors.push({ text: 'Fake KYC request pattern', val: '+20', type: 'negative' }); }
-      else if (context === 'urgent') { score += 12; factors.push({ text: 'Urgency/pressure tactic', val: '+12', type: 'negative' }); }
-      else { factors.push({ text: 'Normal context', val: '+0', type: 'positive' }); }
-      
-      score = Math.min(score, 100);
-      
-      const circle = document.getElementById('riskCircle');
-      const scoreEl = document.getElementById('riskScore');
-      const labelEl = document.getElementById('riskLabel');
-      const factorsEl = document.getElementById('riskFactors');
-      const actionEl = document.getElementById('riskAction');
-      
-      let color, label, action, actionBg;
-      if (score >= 70) {
-        color = '#ef4444';
-        label = 'HIGH RISK';
-        action = '⚠️ This transaction shows multiple fraud indicators. We strongly recommend CANCELLING or verifying the recipient through a separate trusted channel before proceeding.';
-        actionBg = 'rgba(239, 68, 68, 0.1)';
-      } else if (score >= 40) {
-        color = '#f59e0b';
-        label = 'MODERATE RISK';
-        action = '⚡ This transaction has some unusual elements. Double-check the recipient UPI ID and verify the purpose before paying.';
-        actionBg = 'rgba(245, 158, 11, 0.1)';
-      } else {
-        color = '#10b981';
-        label = 'LOW RISK';
-        action = '✅ This transaction appears to be within normal parameters. Always verify the recipient name before confirming.';
-        actionBg = 'rgba(16, 185, 129, 0.1)';
-      }
-      
-      circle.style.borderColor = color;
-      scoreEl.textContent = score;
-      scoreEl.style.color = color;
-      labelEl.textContent = label;
-      labelEl.style.color = color;
-      
-      factorsEl.innerHTML = factors.map(f => `
-        <li class="${f.type}">
-          <span>${f.text}</span>
-          <span style="color: ${f.type === 'negative' ? '#ef4444' : f.type === 'positive' ? '#10b981' : '#f59e0b'}">${f.val}</span>
-        </li>
-      `).join('');
-      
-      actionEl.style.display = 'block';
-      actionEl.style.background = actionBg;
-      actionEl.style.border = `1px solid ${color}30`;
-      actionEl.style.color = color;
-      actionEl.textContent = action;
-    }
+| Category | Allocation | Purpose |
+|---|---:|---|
+| Needs | 50% | Essential expenses |
+| Wants | 30% | Discretionary spending |
+| Savings | 20% | Savings and investments |
 
-    // ==================== UTILS ====================
-    function formatCurrency(num) {
-      if (num >= 100000) return '₹' + (num / 100000).toFixed(1) + 'L';
-      if (num >= 1000) return '₹' + num.toLocaleString('en-IN');
-      return '₹' + num;
-    }
+For example, with a monthly income of ₹50,000:
 
-    function showToast(message, type = 'success') {
-      const container = document.getElementById('toastContainer');
-      const toast = document.createElement('div');
-      toast.className = `toast toast-${type}`;
-      toast.innerHTML = `
-        <span style="font-size: 1.2rem;">${type === 'success' ? '✓' : type === 'danger' ? '✕' : '⚠'}</span>
-        <span>${message}</span>
-      `;
-      container.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
-    }
+- Needs = ₹25,000
+- Wants = ₹15,000
+- Savings = ₹10,000
 
-    function scrollToSection(id) {
-      document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
-      document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
-      event.target.classList.add('active');
-    }
+The results are displayed through interactive cards and a visual budget chart. :chatgpt-content-reference{index="4"}
 
-    // ==================== START ====================
-    init();
-  </script>
-</body>
-</html>
+### Spending Categories
+
+The application provides guidance for categorizing expenses such as:
+
+- Food
+- Transport
+- Shopping
+- Utilities
+- Entertainment
+- Healthcare
+
+Some expenses can belong to different categories depending on their purpose. For example, groceries may be considered a need while dining out may be considered a want. :chatgpt-content-reference{index="5"}
+
+---
+
+## 3. UPI Spending Tracker
+
+The spending tracker allows users to manually record their transactions.
+
+Each transaction can contain:
+
+- Amount
+- Category
+- 50-30-20 bucket
+- Merchant / UPI ID
+- Transaction date
+
+Available categories include:
+
+- Food & Dining
+- Transport
+- Shopping
+- Utilities & Bills
+- Entertainment
+- Health & Medical
+- Education
+- Savings / Investment
+- Others
+
+Users can add and delete transactions from the tracker. :chatgpt-content-reference{index="6"}
+
+### Spending Statistics
+
+The dashboard calculates:
+
+- Total Spent
+- Needs Spending
+- Wants Spending
+- Savings Spending
+
+The application also generates a category-based spending chart to visually represent how money is distributed across different expense categories.
+
+---
+
+## 4. Smart Budget Limits
+
+SecurePay allows users to establish monthly spending limits for different categories.
+
+Default limits are provided for categories such as:
+
+- Food
+- Transport
+- Shopping
+- Utilities
+- Entertainment
+- Health
+- Education
+- Others
+
+The application compares the amount spent against the configured limit and displays a progress bar.
+
+The progress status changes depending on usage:
+
+- Safe: Below 70%
+- Warning: 70%–89%
+- Danger: 90% or above
+
+When spending reaches a critical level, the application displays a budget alert. :chatgpt-content-reference{index="7"}
+
+Users can also update individual category limits.
+
+---
+
+## 5. Pre-Transaction Risk Analyzer
+
+The Pre-Transaction Risk Analyzer is one of the main security features of SecurePay.
+
+Before making a payment, users can enter transaction information such as:
+
+- Transaction amount
+- Recipient type
+- Transaction time
+- Device being used
+- Transaction context
+
+Recipient types include:
+
+- Known Contact
+- New UPI ID / Unknown
+- Suspicious / Random ID
+
+Transaction contexts include:
+
+- Regular Purchase / Transfer
+- Urgent / Pressure to Pay
+- Prize / Cashback / Reward Claim
+- KYC / Account Update Request
+
+The analyzer evaluates these factors and generates a risk score. :chatgpt-content-reference{index="8"}
+
+---
+
+## Risk Scoring System
+
+The risk analyzer uses a rule-based scoring system.
+
+### Transaction Amount
+
+| Amount | Risk Points |
+|---|---:|
+| Up to ₹10,000 | +0 |
+| ₹10,001–₹20,000 | +8 |
+| ₹20,001–₹50,000 | +15 |
+| Above ₹50,000 | +25 |
+
+### Recipient
+
+| Recipient | Risk Points |
+|---|---:|
+| Known recipient | +0 |
+| New recipient | +15 |
+| Suspicious recipient | +25 |
+
+### Transaction Time
+
+| Time | Risk Points |
+|---|---:|
+| Normal hours | +0 |
+| Late night | +8 |
+| Very unusual time | +15 |
+
+### Device
+
+| Device | Risk Points |
+|---|---:|
+| Known device | +0 |
+| New device | +8 |
+| Public/shared device | +15 |
+
+### Transaction Context
+
+| Context | Risk Points |
+|---|---:|
+| Normal transaction | +0 |
+| Urgent/pressure payment | +12 |
+| Reward/prize pattern | +20 |
+| KYC/account update pattern | +20 |
+
+The final score is capped at 100. :chatgpt-content-reference{index="9"}
+
+### Risk Levels
+
+The resulting score is classified into three levels:
+
+**Low Risk**
+
+Score below 40.
+
+The application indicates that the transaction falls within its defined normal parameters while still recommending recipient verification.
+
+**Moderate Risk**
+
+Score from 40 to 69.
+
+The application identifies unusual characteristics and recommends checking the recipient and transaction purpose.
+
+**High Risk**
+
+Score of 70 or above.
+
+The application identifies multiple fraud indicators and recommends cancelling or independently verifying the recipient before proceeding.
+
+These classifications are implemented through JavaScript rules rather than machine-learning predictions. :chatgpt-content-reference{index="10"}
+
+---
+
+## Technology Stack
+
+### Frontend
+
+- HTML5
+- CSS3
+- JavaScript
+- HTML Canvas API
+
+### Styling
+
+The application uses a custom dark-themed interface with:
+
+- CSS variables
+- Responsive grids
+- Cards
+- Gradient elements
+- Hover animations
+- Progress bars
+- Responsive media queries
+- Toast notifications
+- Smooth scrolling
+
+The primary theme uses dark blue backgrounds with green accents and separate colors for warnings, errors, and information. :chatgpt-content-reference{index="11"}
+
+### Data Storage
+
+SecurePay uses the browser's **LocalStorage API** to persist:
+
+- Transactions
+- Budget limits
+- Security checklist progress
+
+No external database is required for the current implementation. :chatgpt-content-reference{index="12"}
+
+---
+
+## Application Architecture
+
+The application follows a lightweight client-side architecture:
+
+```text
+User
+  |
+  v
+SecurePay Web Interface
+  |
+  +----------------------+
+  |                      |
+  v                      v
+Budget Management    Fraud Awareness
+  |                      |
+  +----------+-----------+
+             |
+             v
+       JavaScript Logic
+             |
+     +-------+-------+
+     |       |       |
+     v       v       v
+LocalStorage Charts Risk Engine
+```
+
+All major application logic runs in the browser.
+
+---
+
+## Data Flow
+
+### Budget Calculator
+
+```text
+Monthly Income
+      |
+      v
+50% Needs
+30% Wants
+20% Savings
+      |
+      v
+Budget Chart + Result Cards
+```
+
+### Spending Tracker
+
+```text
+Transaction Input
+      |
+      v
+Validation
+      |
+      v
+Transaction Object
+      |
+      v
+LocalStorage
+      |
+      +----> Transaction List
+      |
+      +----> Statistics
+      |
+      +----> Spending Chart
+      |
+      +----> Budget Limits
+```
+
+### Risk Analyzer
+
+```text
+Transaction Details
+        |
+        v
+Amount Evaluation
+        |
+        +---- Recipient Evaluation
+        |
+        +---- Time Evaluation
+        |
+        +---- Device Evaluation
+        |
+        +---- Context Evaluation
+        |
+        v
+Risk Score
+        |
+        v
+Low / Moderate / High Risk
+        |
+        v
+Recommended Action
+```
+
+---
+
+## LocalStorage Implementation
+
+SecurePay stores user data locally in the browser.
+
+The application uses separate storage keys for different types of information:
+
+```text
+securepay_tx
+securepay_limits
+securepay_checklist
+```
+
+This allows the application to retain user-entered information even after refreshing the page.
+
+Because the current implementation uses browser LocalStorage, the data is local to the browser and is not synchronized with an external account or database. :chatgpt-content-reference{index="13"}
+
+---
+
+## User Interface
+
+The interface is designed around a modern dashboard-style layout.
+
+### Navigation
+
+The fixed navigation bar provides access to:
+
+- Fraud Awareness
+- 50-30-20 Rule
+- Spending Tracker
+- Budget Limits
+- Risk Analyzer
+
+The navigation remains visible while scrolling and highlights the active section. :chatgpt-content-reference{index="14"}
+
+### Responsive Design
+
+The application includes responsive CSS rules for smaller screens.
+
+The layout adapts by:
+
+- Hiding desktop navigation links on smaller screens
+- Reducing hero heading size
+- Converting multi-column result cards into single-column layouts
+- Changing the spending tracker layout from two columns to one column
+
+This allows the application to work across desktop and mobile screen sizes. :chatgpt-content-reference{index="15"} :chatgpt-content-reference{index="16"}
+
+---
+
+## Visualizations
+
+SecurePay uses the HTML Canvas API for financial visualizations.
+
+### Budget Chart
+
+The budget chart visualizes:
+
+- Needs
+- Wants
+- Savings
+
+according to the 50-30-20 allocation. :chatgpt-content-reference{index="17"}
+
+### Spending Chart
+
+The spending chart dynamically calculates category totals and displays their relative distribution.
+
+The chart also includes:
+
+- Category percentages
+- Category legend
+- Total number of spending categories
+
+The chart updates whenever transactions are added or deleted. :chatgpt-content-reference{index="18"}
+
+---
+
+## Validation and Notifications
+
+The application performs basic input validation before processing user actions.
+
+Examples include:
+
+- Invalid transaction amounts
+- Invalid budget limits
+- Missing risk-analysis amounts
+
+Users receive visual toast notifications when actions succeed or fail.
+
+Examples include:
+
+```text
+Transaction added
+Transaction deleted
+Limit updated
+Invalid amount
+Security checklist updated
+```
+
+The notification system automatically removes messages after a short period. :chatgpt-content-reference{index="19"}
+
+---
+
+## Project Structure
+
+A simple implementation can be organized as:
+
+```text
+SecurePay/
+│
+├── index.html
+├── README.md
+│
+├── assets/
+│   ├── images/
+│   └── icons/
+│
+└── screenshots/
+```
+
+If the HTML, CSS, and JavaScript are kept in a single file, the project can also be structured as:
+
+```text
+SecurePay/
+│
+├── index.html
+└── README.md
+```
+
+---
+
+## How to Run the Project
+
+### Option 1 — Open Directly
+
+1. Clone or download the repository.
+2. Open the project folder.
+3. Open `index.html` in a modern web browser.
+4. Start using SecurePay.
+
+### Option 2 — VS Code Live Server
+
+1. Open the project in Visual Studio Code.
+2. Install the **Live Server** extension.
+3. Right-click `index.html`.
+4. Select **Open with Live Server**.
+5. The application will open in your browser.
+
+No backend server or database setup is required for the current implementation.
+
+---
+
+## Example Workflow
+
+A typical user session can follow this process:
+
+```text
+1. Learn about common UPI frauds
+              ↓
+2. Complete the security checklist
+              ↓
+3. Enter monthly income
+              ↓
+4. Review 50-30-20 budget
+              ↓
+5. Record UPI transactions
+              ↓
+6. Monitor category spending
+              ↓
+7. Configure budget limits
+              ↓
+8. Check transaction risk before payment
+```
+
+---
+
+## Educational Purpose
+
+SecurePay is primarily an **educational and awareness project**.
+
+It demonstrates how a client-side web application can combine:
+
+- Financial planning
+- Data visualization
+- Local data storage
+- Rule-based risk analysis
+- Interactive UI components
+- Digital payment security awareness
+
+The project is not intended to replace a bank's fraud detection system or provide a guaranteed prediction of whether a transaction is fraudulent.
+
+The application's own interface states that it is an educational tool and recommends contacting the bank and reporting incidents to the appropriate payment authorities in case of actual fraud. :chatgpt-content-reference{index="20"}
+
+---
+
+## Limitations
+
+The current version has several technical limitations:
+
+- It does not connect to a real UPI account.
+- Transactions must be entered manually.
+- It does not access live bank transaction data.
+- Risk analysis is rule-based.
+- It does not use machine learning.
+- Data is stored only in browser LocalStorage.
+- Clearing browser storage can remove saved application data.
+- The risk score should not be interpreted as a guaranteed fraud prediction.
+- There is no authentication system or multi-user database.
+
+---
+
+## Future Enhancements
+
+Possible future improvements include:
+
+- Backend API integration
+- User authentication
+- Cloud database
+- Secure user accounts
+- Real-time transaction monitoring
+- Machine-learning-based fraud detection
+- Anomaly detection
+- Transaction history import
+- Monthly financial reports
+- PDF report generation
+- Advanced spending analytics
+- Budget recommendations
+- Notification system
+- Mobile application
+- Integration with official payment and banking services
+- Improved accessibility
+- Multi-language support
+
+---
+
+## Learning Outcomes
+
+This project demonstrates practical implementation of several web-development and software concepts:
+
+- HTML structure and semantic organization
+- CSS variables and responsive design
+- JavaScript DOM manipulation
+- Event handling
+- Form validation
+- Arrays and objects
+- Array filtering and aggregation
+- LocalStorage
+- Dynamic HTML rendering
+- Canvas-based data visualization
+- Rule-based decision systems
+- Responsive UI design
+- Client-side application architecture
+
+---
+
+## Security Awareness
+
+The project emphasizes several important principles for safer digital payments:
+
+```text
+Never share your UPI PIN
+        ↓
+Verify the recipient
+        ↓
+Be careful with QR codes
+        ↓
+Reject suspicious collect requests
+        ↓
+Avoid unknown payment links
+        ↓
+Be cautious of urgent payment requests
+        ↓
+Verify unusual KYC/reward requests
+```
+
+The application is designed to encourage users to pause and verify transaction details before completing a payment.
+
+---
+
+## Conclusion
+
+SecurePay brings **UPI fraud awareness and personal financial management into one interactive web application**.
+
+Instead of focusing only on fraud awareness or only on budgeting, the project combines both areas:
+
+```text
+Fraud Awareness
+       +
+Budget Planning
+       +
+Expense Tracking
+       +
+Budget Monitoring
+       +
+Risk Analysis
+       =
+SecurePay
+```
+
+The project demonstrates how a lightweight frontend application can provide useful educational tools without requiring a backend database or external financial service.
+
+**SecurePay — Secure Your UPI. Master Your Money.**
